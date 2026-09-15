@@ -70,6 +70,7 @@
 
 ## 16. 配当テーブル(Player 1倍/Banker 0.95倍/Tie 8倍)の計算ロジックを実装する
 完了定義: 画面表示に変化はない。`npx vitest run` を実行した端末に、Player win/Banker win/Tieそれぞれの配当計算テストがPASSと表示される。
+状態: 済
 
 ## 17. 配当テーブルにPlayer Pair/Banker Pairの配当倍率(11倍)を追加する
 完了定義: 画面表示に変化はない。`npx vitest run` を実行した端末に、Player Pair/Banker Pairそれぞれの配当計算テストがPASSと表示される。
