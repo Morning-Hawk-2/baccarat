@@ -2,6 +2,8 @@ import { useState } from 'react'
 import type { Bet } from './baccarat/bet'
 import { generateRandomBet } from './baccarat/bet'
 import type { DealtHand } from './baccarat/dealHand'
+import type { Outcome } from './baccarat/outcome'
+import { judgeOutcome } from './baccarat/outcome'
 import { dealRandomHand } from './baccarat/randomHand'
 import type { Card, Suit } from './baccarat/score'
 
@@ -31,17 +33,20 @@ function App() {
   const [bet, setBet] = useState<Bet>(() => generateRandomBet())
   const [playerAnswer, setPlayerAnswer] = useState<DrawStandAnswer | null>(null)
   const [bankerAnswer, setBankerAnswer] = useState<DrawStandAnswer | null>(null)
+  const [outcomeAnswer, setOutcomeAnswer] = useState<Outcome | null>(null)
 
   const playerInitialCards = hand.player.slice(0, 2)
   const bankerInitialCards = hand.banker.slice(0, 2)
   const correctPlayerAnswer: DrawStandAnswer = hand.player.length > 2 ? 'draw' : 'stand'
   const correctBankerAnswer: DrawStandAnswer = hand.banker.length > 2 ? 'draw' : 'stand'
+  const correctOutcome = judgeOutcome(hand.player, hand.banker)
 
   const handleNextHand = () => {
     setHand(dealRandomHand())
     setBet(generateRandomBet())
     setPlayerAnswer(null)
     setBankerAnswer(null)
+    setOutcomeAnswer(null)
   }
 
   return (
@@ -61,7 +66,9 @@ function App() {
       </section>
       <section>
         <h2>Banker</h2>
-        <p>{bankerInitialCards.map(formatCard).join(' ')}</p>
+        <p>
+          {(bankerAnswer === null ? bankerInitialCards : hand.banker).map(formatCard).join(' ')}
+        </p>
       </section>
       <div>
         <button type="button" onClick={() => setPlayerAnswer('draw')}>
@@ -86,6 +93,22 @@ function App() {
       )}
       {bankerAnswer !== null && (
         <p>{bankerAnswer === correctBankerAnswer ? '正解' : '不正解'}</p>
+      )}
+      {bankerAnswer !== null && (
+        <div>
+          <button type="button" onClick={() => setOutcomeAnswer('player')}>
+            Player win
+          </button>
+          <button type="button" onClick={() => setOutcomeAnswer('banker')}>
+            Banker win
+          </button>
+          <button type="button" onClick={() => setOutcomeAnswer('tie')}>
+            Tie
+          </button>
+        </div>
+      )}
+      {outcomeAnswer !== null && (
+        <p>{outcomeAnswer === correctOutcome ? '正解' : '不正解'}</p>
       )}
     </div>
   )
