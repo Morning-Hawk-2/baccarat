@@ -2,10 +2,8 @@ import { useState } from 'react'
 import type { Bet } from './baccarat/bet'
 import { generateRandomBet } from './baccarat/bet'
 import type { DealtHand } from './baccarat/dealHand'
-import { getPlayerAction } from './baccarat/playerRule'
 import { dealRandomHand } from './baccarat/randomHand'
 import type { Card, Suit } from './baccarat/score'
-import { calculateScore } from './baccarat/score'
 
 const SUIT_SYMBOLS: Record<Suit, string> = {
   spades: '♠',
@@ -28,24 +26,22 @@ function formatCard(card: Card): string {
   return card.suit ? `${card.rank}${SUIT_SYMBOLS[card.suit]}` : card.rank
 }
 
-function getPlayerCorrectAnswer(initialTwoCards: Card[]): DrawStandAnswer {
-  const action = getPlayerAction(calculateScore(initialTwoCards))
-  return action === 'draw' ? 'draw' : 'stand'
-}
-
 function App() {
   const [hand, setHand] = useState<DealtHand>(() => dealRandomHand())
   const [bet, setBet] = useState<Bet>(() => generateRandomBet())
   const [playerAnswer, setPlayerAnswer] = useState<DrawStandAnswer | null>(null)
+  const [bankerAnswer, setBankerAnswer] = useState<DrawStandAnswer | null>(null)
 
   const playerInitialCards = hand.player.slice(0, 2)
   const bankerInitialCards = hand.banker.slice(0, 2)
-  const correctPlayerAnswer = getPlayerCorrectAnswer(playerInitialCards)
+  const correctPlayerAnswer: DrawStandAnswer = hand.player.length > 2 ? 'draw' : 'stand'
+  const correctBankerAnswer: DrawStandAnswer = hand.banker.length > 2 ? 'draw' : 'stand'
 
   const handleNextHand = () => {
     setHand(dealRandomHand())
     setBet(generateRandomBet())
     setPlayerAnswer(null)
+    setBankerAnswer(null)
   }
 
   return (
@@ -59,7 +55,9 @@ function App() {
       </p>
       <section>
         <h2>Player</h2>
-        <p>{playerInitialCards.map(formatCard).join(' ')}</p>
+        <p>
+          {(playerAnswer === null ? playerInitialCards : hand.player).map(formatCard).join(' ')}
+        </p>
       </section>
       <section>
         <h2>Banker</h2>
@@ -75,6 +73,19 @@ function App() {
       </div>
       {playerAnswer !== null && (
         <p>{playerAnswer === correctPlayerAnswer ? '正解' : '不正解'}</p>
+      )}
+      {playerAnswer !== null && (
+        <div>
+          <button type="button" onClick={() => setBankerAnswer('draw')}>
+            Draw
+          </button>
+          <button type="button" onClick={() => setBankerAnswer('stand')}>
+            Stand
+          </button>
+        </div>
+      )}
+      {bankerAnswer !== null && (
+        <p>{bankerAnswer === correctBankerAnswer ? '正解' : '不正解'}</p>
       )}
     </div>
   )
