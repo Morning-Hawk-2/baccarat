@@ -1,17 +1,29 @@
 import type { Bet } from './bet'
 import type { Outcome } from './outcome'
 
-const PAYOUT_MULTIPLIERS: Partial<Record<Bet['type'], number>> = {
+export interface HandResult {
+  outcome: Outcome
+  playerPair: boolean
+  bankerPair: boolean
+}
+
+const WIN_MULTIPLIERS: Record<Outcome, number> = {
   player: 1,
   banker: 0.95,
   tie: 8,
 }
 
-export function calculatePayout(bet: Bet, outcome: Outcome): number {
-  if (bet.type !== outcome) return 0
+const PAIR_MULTIPLIER = 11
 
-  const multiplier = PAYOUT_MULTIPLIERS[bet.type]
-  if (multiplier === undefined) return 0
-
-  return bet.amount * multiplier
+export function calculatePayout(bet: Bet, result: HandResult): number {
+  switch (bet.type) {
+    case 'player':
+    case 'banker':
+    case 'tie':
+      return bet.type === result.outcome ? bet.amount * WIN_MULTIPLIERS[bet.type] : 0
+    case 'playerPair':
+      return result.playerPair ? bet.amount * PAIR_MULTIPLIER : 0
+    case 'bankerPair':
+      return result.bankerPair ? bet.amount * PAIR_MULTIPLIER : 0
+  }
 }

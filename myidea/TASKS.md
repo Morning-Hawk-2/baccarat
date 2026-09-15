@@ -74,6 +74,7 @@
 
 ## 17. 配当テーブルにPlayer Pair/Banker Pairの配当倍率(11倍)を追加する
 完了定義: 画面表示に変化はない。`npx vitest run` を実行した端末に、Player Pair/Banker Pairそれぞれの配当計算テストがPASSと表示される。
+状態: 済
 
 ## 18. 正解の配当額に対する4択ダミー(誤答選択肢)生成ロジックを実装する(Player/Banker/Tie/Player Pair/Banker Pairいずれの配当額にも対応)
 完了定義: 画面表示に変化はない。`npx vitest run` を実行した端末に、生成される4択に正解が1つだけ含まれ、残り3つが正解と異なることを確認するテストがPASSと表示される。
