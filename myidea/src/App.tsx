@@ -2,9 +2,10 @@ import { useState } from 'react'
 import type { Bet } from './baccarat/bet'
 import { generateRandomBet } from './baccarat/bet'
 import type { DealtHand } from './baccarat/dealHand'
-import { judgeOutcome } from './baccarat/outcome'
+import { getPlayerAction } from './baccarat/playerRule'
 import { dealRandomHand } from './baccarat/randomHand'
 import type { Card, Suit } from './baccarat/score'
+import { calculateScore } from './baccarat/score'
 
 const SUIT_SYMBOLS: Record<Suit, string> = {
   spades: '♠',
@@ -12,12 +13,6 @@ const SUIT_SYMBOLS: Record<Suit, string> = {
   diamonds: '♦',
   clubs: '♣',
 }
-
-const OUTCOME_LABEL = {
-  player: 'Player win',
-  banker: 'Banker win',
-  tie: 'Tie',
-} as const
 
 const BET_TYPE_LABEL: Record<Bet['type'], string> = {
   player: 'Player',
@@ -27,18 +22,30 @@ const BET_TYPE_LABEL: Record<Bet['type'], string> = {
   bankerPair: 'Banker Pair',
 }
 
+type DrawStandAnswer = 'draw' | 'stand'
+
 function formatCard(card: Card): string {
   return card.suit ? `${card.rank}${SUIT_SYMBOLS[card.suit]}` : card.rank
+}
+
+function getPlayerCorrectAnswer(initialTwoCards: Card[]): DrawStandAnswer {
+  const action = getPlayerAction(calculateScore(initialTwoCards))
+  return action === 'draw' ? 'draw' : 'stand'
 }
 
 function App() {
   const [hand, setHand] = useState<DealtHand>(() => dealRandomHand())
   const [bet, setBet] = useState<Bet>(() => generateRandomBet())
-  const outcome = judgeOutcome(hand.player, hand.banker)
+  const [playerAnswer, setPlayerAnswer] = useState<DrawStandAnswer | null>(null)
+
+  const playerInitialCards = hand.player.slice(0, 2)
+  const bankerInitialCards = hand.banker.slice(0, 2)
+  const correctPlayerAnswer = getPlayerCorrectAnswer(playerInitialCards)
 
   const handleNextHand = () => {
     setHand(dealRandomHand())
     setBet(generateRandomBet())
+    setPlayerAnswer(null)
   }
 
   return (
@@ -52,13 +59,23 @@ function App() {
       </p>
       <section>
         <h2>Player</h2>
-        <p>{hand.player.map(formatCard).join(' ')}</p>
+        <p>{playerInitialCards.map(formatCard).join(' ')}</p>
       </section>
       <section>
         <h2>Banker</h2>
-        <p>{hand.banker.map(formatCard).join(' ')}</p>
+        <p>{bankerInitialCards.map(formatCard).join(' ')}</p>
       </section>
-      <p>{OUTCOME_LABEL[outcome]}</p>
+      <div>
+        <button type="button" onClick={() => setPlayerAnswer('draw')}>
+          Draw
+        </button>
+        <button type="button" onClick={() => setPlayerAnswer('stand')}>
+          Stand
+        </button>
+      </div>
+      {playerAnswer !== null && (
+        <p>{playerAnswer === correctPlayerAnswer ? '正解' : '不正解'}</p>
+      )}
     </div>
   )
 }
