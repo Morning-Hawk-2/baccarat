@@ -112,7 +112,7 @@
 
 ## 25. スコアパネルの土台(5項目、初期値0%)を画面に追加する
 完了定義: 画面にスコアパネルが表示され、Player Draw/Stand・Banker Draw/Stand・勝敗判定・配当計算・全体の5項目が0%で表示される。
-状態: 未
+状態: 済
 
 ## 26. Player Draw/StandとBanker Draw/Standの回答結果をスコアパネルに反映する
 完了定義: Player Draw/StandまたはBanker Draw/Standに回答するたびに、該当項目の正答率がスコアパネルに反映される。

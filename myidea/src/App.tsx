@@ -135,6 +135,16 @@ function App() {
         今回のベット: {BET_TYPE_LABEL[bet.type]} ${bet.amount}
       </p>
       <section>
+        <h2>スコア</h2>
+        <ul>
+          <li>Player Draw/Stand: 0%</li>
+          <li>Banker Draw/Stand: 0%</li>
+          <li>勝敗判定: 0%</li>
+          <li>配当計算: 0%</li>
+          <li>全体: 0%</li>
+        </ul>
+      </section>
+      <section>
         <h2>Player</h2>
         <p>
           {(playerAnswer === null ? playerInitialCards : hand.player).map(formatCard).join(' ')}
