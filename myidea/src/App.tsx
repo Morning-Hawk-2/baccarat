@@ -7,6 +7,10 @@ import type { Outcome } from './baccarat/outcome'
 import { judgeOutcome } from './baccarat/outcome'
 import { isPair } from './baccarat/pair'
 import { calculatePayout } from './baccarat/payout'
+import {
+  getBankerActionWhenPlayerDrew,
+  getBankerActionWhenPlayerStands,
+} from './baccarat/bankerRule'
 import { getPlayerAction } from './baccarat/playerRule'
 import { dealRandomHand } from './baccarat/randomHand'
 import type { Card, Suit } from './baccarat/score'
@@ -40,6 +44,21 @@ function formatPlayerReason(initialScore: number): string {
   return `点数${initialScore}(0-5)は引く`
 }
 
+function formatBankerReason(
+  bankerScore: number,
+  playerDrew: boolean,
+  playerThirdCardValue: number,
+): string {
+  if (!playerDrew) {
+    const action = getBankerActionWhenPlayerStands(bankerScore)
+    const verb = action === 'draw' ? '引く' : '止める'
+    return `Banker点数${bankerScore}、Playerが第三カードを引いていないため${verb}`
+  }
+  const action = getBankerActionWhenPlayerDrew(bankerScore, playerThirdCardValue)
+  const verb = action === 'draw' ? '引く' : '止める'
+  return `Banker点数${bankerScore}、Playerの第三カードが${playerThirdCardValue}のため${verb}`
+}
+
 function App() {
   const [hand, setHand] = useState<DealtHand>(() => dealRandomHand())
   const [bet, setBet] = useState<Bet>(() => generateRandomBet())
@@ -51,7 +70,10 @@ function App() {
   const playerInitialCards = hand.player.slice(0, 2)
   const bankerInitialCards = hand.banker.slice(0, 2)
   const playerInitialScore = calculateScore(playerInitialCards)
-  const correctPlayerAnswer: DrawStandAnswer = hand.player.length > 2 ? 'draw' : 'stand'
+  const bankerInitialScore = calculateScore(bankerInitialCards)
+  const playerDrew = hand.player.length > 2
+  const playerThirdCardValue = playerDrew ? calculateScore([hand.player[2]]) : 0
+  const correctPlayerAnswer: DrawStandAnswer = playerDrew ? 'draw' : 'stand'
   const correctBankerAnswer: DrawStandAnswer = hand.banker.length > 2 ? 'draw' : 'stand'
   const correctOutcome = judgeOutcome(hand.player, hand.banker)
   const correctPayout = calculatePayout(bet, {
@@ -120,6 +142,12 @@ function App() {
       )}
       {bankerAnswer !== null && (
         <p>{bankerAnswer === correctBankerAnswer ? '正解' : '不正解'}</p>
+      )}
+      {bankerAnswer !== null && bankerAnswer !== correctBankerAnswer && (
+        <p>
+          正解: {correctBankerAnswer === 'draw' ? 'Draw' : 'Stand'}(
+          {formatBankerReason(bankerInitialScore, playerDrew, playerThirdCardValue)})
+        </p>
       )}
       {bankerAnswer !== null && (
         <div>
