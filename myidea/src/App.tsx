@@ -39,6 +39,18 @@ const OUTCOME_LABEL: Record<Outcome, string> = {
 
 type DrawStandAnswer = 'draw' | 'stand'
 
+interface Stats {
+  correct: number
+  total: number
+}
+
+const INITIAL_STATS: Stats = { correct: 0, total: 0 }
+
+function accuracyPercent(stats: Stats): number {
+  if (stats.total === 0) return 0
+  return Math.round((stats.correct / stats.total) * 100)
+}
+
 function formatCard(card: Card): string {
   return card.suit ? `${card.rank}${SUIT_SYMBOLS[card.suit]}` : card.rank
 }
@@ -95,6 +107,8 @@ function App() {
   const [bankerAnswer, setBankerAnswer] = useState<DrawStandAnswer | null>(null)
   const [outcomeAnswer, setOutcomeAnswer] = useState<Outcome | null>(null)
   const [payoutAnswer, setPayoutAnswer] = useState<number | null>(null)
+  const [playerStats, setPlayerStats] = useState<Stats>(INITIAL_STATS)
+  const [bankerStats, setBankerStats] = useState<Stats>(INITIAL_STATS)
 
   const playerInitialCards = hand.player.slice(0, 2)
   const bankerInitialCards = hand.banker.slice(0, 2)
@@ -115,6 +129,22 @@ function App() {
     bankerPair,
   })
   const payoutChoices = useMemo(() => generateAnswerChoices(correctPayout), [hand, bet])
+
+  const handlePlayerAnswer = (answer: DrawStandAnswer) => {
+    setPlayerAnswer(answer)
+    setPlayerStats((prev) => ({
+      correct: prev.correct + (answer === correctPlayerAnswer ? 1 : 0),
+      total: prev.total + 1,
+    }))
+  }
+
+  const handleBankerAnswer = (answer: DrawStandAnswer) => {
+    setBankerAnswer(answer)
+    setBankerStats((prev) => ({
+      correct: prev.correct + (answer === correctBankerAnswer ? 1 : 0),
+      total: prev.total + 1,
+    }))
+  }
 
   const handleNextHand = () => {
     setHand(dealRandomHand())
@@ -137,8 +167,8 @@ function App() {
       <section>
         <h2>スコア</h2>
         <ul>
-          <li>Player Draw/Stand: 0%</li>
-          <li>Banker Draw/Stand: 0%</li>
+          <li>Player Draw/Stand: {accuracyPercent(playerStats)}%</li>
+          <li>Banker Draw/Stand: {accuracyPercent(bankerStats)}%</li>
           <li>勝敗判定: 0%</li>
           <li>配当計算: 0%</li>
           <li>全体: 0%</li>
@@ -157,10 +187,10 @@ function App() {
         </p>
       </section>
       <div>
-        <button type="button" onClick={() => setPlayerAnswer('draw')}>
+        <button type="button" onClick={() => handlePlayerAnswer('draw')}>
           Draw
         </button>
-        <button type="button" onClick={() => setPlayerAnswer('stand')}>
+        <button type="button" onClick={() => handlePlayerAnswer('stand')}>
           Stand
         </button>
       </div>
@@ -175,10 +205,10 @@ function App() {
       )}
       {playerAnswer !== null && (
         <div>
-          <button type="button" onClick={() => setBankerAnswer('draw')}>
+          <button type="button" onClick={() => handleBankerAnswer('draw')}>
             Draw
           </button>
-          <button type="button" onClick={() => setBankerAnswer('stand')}>
+          <button type="button" onClick={() => handleBankerAnswer('stand')}>
             Stand
           </button>
         </div>
