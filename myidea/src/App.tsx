@@ -31,6 +31,12 @@ const BET_TYPE_LABEL: Record<Bet['type'], string> = {
   bankerPair: 'Banker Pair',
 }
 
+const OUTCOME_LABEL: Record<Outcome, string> = {
+  player: 'Player win',
+  banker: 'Banker win',
+  tie: 'Tie',
+}
+
 type DrawStandAnswer = 'draw' | 'stand'
 
 function formatCard(card: Card): string {
@@ -59,6 +65,12 @@ function formatBankerReason(
   return `Banker点数${bankerScore}、Playerの第三カードが${playerThirdCardValue}のため${verb}`
 }
 
+function formatOutcomeReason(playerScore: number, bankerScore: number): string {
+  if (playerScore === bankerScore) return `Player点数${playerScore} = Banker点数${bankerScore}`
+  if (playerScore > bankerScore) return `Player点数${playerScore} > Banker点数${bankerScore}`
+  return `Player点数${playerScore} < Banker点数${bankerScore}`
+}
+
 function App() {
   const [hand, setHand] = useState<DealtHand>(() => dealRandomHand())
   const [bet, setBet] = useState<Bet>(() => generateRandomBet())
@@ -75,6 +87,8 @@ function App() {
   const playerThirdCardValue = playerDrew ? calculateScore([hand.player[2]]) : 0
   const correctPlayerAnswer: DrawStandAnswer = playerDrew ? 'draw' : 'stand'
   const correctBankerAnswer: DrawStandAnswer = hand.banker.length > 2 ? 'draw' : 'stand'
+  const finalPlayerScore = calculateScore(hand.player)
+  const finalBankerScore = calculateScore(hand.banker)
   const correctOutcome = judgeOutcome(hand.player, hand.banker)
   const correctPayout = calculatePayout(bet, {
     outcome: correctOutcome,
@@ -164,6 +178,12 @@ function App() {
       )}
       {outcomeAnswer !== null && (
         <p>{outcomeAnswer === correctOutcome ? '正解' : '不正解'}</p>
+      )}
+      {outcomeAnswer !== null && outcomeAnswer !== correctOutcome && (
+        <p>
+          正解: {OUTCOME_LABEL[correctOutcome]}(
+          {formatOutcomeReason(finalPlayerScore, finalBankerScore)})
+        </p>
       )}
       {outcomeAnswer !== null && (
         <div>
