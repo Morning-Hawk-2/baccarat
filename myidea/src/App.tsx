@@ -51,6 +51,13 @@ function accuracyPercent(stats: Stats): number {
   return Math.round((stats.correct / stats.total) * 100)
 }
 
+function combineStats(...statsList: Stats[]): Stats {
+  return statsList.reduce(
+    (acc, s) => ({ correct: acc.correct + s.correct, total: acc.total + s.total }),
+    { correct: 0, total: 0 },
+  )
+}
+
 function formatCard(card: Card): string {
   return card.suit ? `${card.rank}${SUIT_SYMBOLS[card.suit]}` : card.rank
 }
@@ -109,6 +116,8 @@ function App() {
   const [payoutAnswer, setPayoutAnswer] = useState<number | null>(null)
   const [playerStats, setPlayerStats] = useState<Stats>(INITIAL_STATS)
   const [bankerStats, setBankerStats] = useState<Stats>(INITIAL_STATS)
+  const [outcomeStats, setOutcomeStats] = useState<Stats>(INITIAL_STATS)
+  const [payoutStats, setPayoutStats] = useState<Stats>(INITIAL_STATS)
 
   const playerInitialCards = hand.player.slice(0, 2)
   const bankerInitialCards = hand.banker.slice(0, 2)
@@ -146,6 +155,22 @@ function App() {
     }))
   }
 
+  const handleOutcomeAnswer = (answer: Outcome) => {
+    setOutcomeAnswer(answer)
+    setOutcomeStats((prev) => ({
+      correct: prev.correct + (answer === correctOutcome ? 1 : 0),
+      total: prev.total + 1,
+    }))
+  }
+
+  const handlePayoutAnswer = (answer: number) => {
+    setPayoutAnswer(answer)
+    setPayoutStats((prev) => ({
+      correct: prev.correct + (answer === correctPayout ? 1 : 0),
+      total: prev.total + 1,
+    }))
+  }
+
   const handleNextHand = () => {
     setHand(dealRandomHand())
     setBet(generateRandomBet())
@@ -169,9 +194,15 @@ function App() {
         <ul>
           <li>Player Draw/Stand: {accuracyPercent(playerStats)}%</li>
           <li>Banker Draw/Stand: {accuracyPercent(bankerStats)}%</li>
-          <li>勝敗判定: 0%</li>
-          <li>配当計算: 0%</li>
-          <li>全体: 0%</li>
+          <li>勝敗判定: {accuracyPercent(outcomeStats)}%</li>
+          <li>配当計算: {accuracyPercent(payoutStats)}%</li>
+          <li>
+            全体:{' '}
+            {accuracyPercent(
+              combineStats(playerStats, bankerStats, outcomeStats, payoutStats),
+            )}
+            %
+          </li>
         </ul>
       </section>
       <section>
@@ -224,13 +255,13 @@ function App() {
       )}
       {bankerAnswer !== null && (
         <div>
-          <button type="button" onClick={() => setOutcomeAnswer('player')}>
+          <button type="button" onClick={() => handleOutcomeAnswer('player')}>
             Player win
           </button>
-          <button type="button" onClick={() => setOutcomeAnswer('banker')}>
+          <button type="button" onClick={() => handleOutcomeAnswer('banker')}>
             Banker win
           </button>
-          <button type="button" onClick={() => setOutcomeAnswer('tie')}>
+          <button type="button" onClick={() => handleOutcomeAnswer('tie')}>
             Tie
           </button>
         </div>
@@ -247,7 +278,7 @@ function App() {
       {outcomeAnswer !== null && (
         <div>
           {payoutChoices.map((choice) => (
-            <button key={choice} type="button" onClick={() => setPayoutAnswer(choice)}>
+            <button key={choice} type="button" onClick={() => handlePayoutAnswer(choice)}>
               ${choice}
             </button>
           ))}
