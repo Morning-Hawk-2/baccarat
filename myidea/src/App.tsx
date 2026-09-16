@@ -7,8 +7,10 @@ import type { Outcome } from './baccarat/outcome'
 import { judgeOutcome } from './baccarat/outcome'
 import { isPair } from './baccarat/pair'
 import { calculatePayout } from './baccarat/payout'
+import { getPlayerAction } from './baccarat/playerRule'
 import { dealRandomHand } from './baccarat/randomHand'
 import type { Card, Suit } from './baccarat/score'
+import { calculateScore } from './baccarat/score'
 
 const SUIT_SYMBOLS: Record<Suit, string> = {
   spades: '♠',
@@ -31,6 +33,13 @@ function formatCard(card: Card): string {
   return card.suit ? `${card.rank}${SUIT_SYMBOLS[card.suit]}` : card.rank
 }
 
+function formatPlayerReason(initialScore: number): string {
+  const action = getPlayerAction(initialScore)
+  if (action === 'natural') return `点数${initialScore}(8-9・ナチュラル)は止める`
+  if (action === 'stand') return `点数${initialScore}(6-7)は止める`
+  return `点数${initialScore}(0-5)は引く`
+}
+
 function App() {
   const [hand, setHand] = useState<DealtHand>(() => dealRandomHand())
   const [bet, setBet] = useState<Bet>(() => generateRandomBet())
@@ -41,6 +50,7 @@ function App() {
 
   const playerInitialCards = hand.player.slice(0, 2)
   const bankerInitialCards = hand.banker.slice(0, 2)
+  const playerInitialScore = calculateScore(playerInitialCards)
   const correctPlayerAnswer: DrawStandAnswer = hand.player.length > 2 ? 'draw' : 'stand'
   const correctBankerAnswer: DrawStandAnswer = hand.banker.length > 2 ? 'draw' : 'stand'
   const correctOutcome = judgeOutcome(hand.player, hand.banker)
@@ -91,6 +101,12 @@ function App() {
       </div>
       {playerAnswer !== null && (
         <p>{playerAnswer === correctPlayerAnswer ? '正解' : '不正解'}</p>
+      )}
+      {playerAnswer !== null && playerAnswer !== correctPlayerAnswer && (
+        <p>
+          正解: {correctPlayerAnswer === 'draw' ? 'Draw' : 'Stand'}(
+          {formatPlayerReason(playerInitialScore)})
+        </p>
       )}
       {playerAnswer !== null && (
         <div>
