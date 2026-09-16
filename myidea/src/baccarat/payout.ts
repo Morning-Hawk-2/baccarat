@@ -7,13 +7,13 @@ export interface HandResult {
   bankerPair: boolean
 }
 
-const WIN_MULTIPLIERS: Record<Outcome, number> = {
+export const WIN_MULTIPLIERS: Record<Outcome, number> = {
   player: 1,
   banker: 0.95,
   tie: 8,
 }
 
-const PAIR_MULTIPLIER = 11
+export const PAIR_MULTIPLIER = 11
 
 export function calculatePayout(bet: Bet, result: HandResult): number {
   switch (bet.type) {

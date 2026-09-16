@@ -6,7 +6,7 @@ import type { DealtHand } from './baccarat/dealHand'
 import type { Outcome } from './baccarat/outcome'
 import { judgeOutcome } from './baccarat/outcome'
 import { isPair } from './baccarat/pair'
-import { calculatePayout } from './baccarat/payout'
+import { calculatePayout, PAIR_MULTIPLIER, WIN_MULTIPLIERS } from './baccarat/payout'
 import {
   getBankerActionWhenPlayerDrew,
   getBankerActionWhenPlayerStands,
@@ -71,6 +71,23 @@ function formatOutcomeReason(playerScore: number, bankerScore: number): string {
   return `Player点数${playerScore} < Banker点数${bankerScore}`
 }
 
+function formatPayoutReason(
+  bet: Bet,
+  correctOutcome: Outcome,
+  playerPair: boolean,
+  bankerPair: boolean,
+): string {
+  if (bet.type === 'player' || bet.type === 'banker' || bet.type === 'tie') {
+    if (bet.type === correctOutcome) {
+      return `${BET_TYPE_LABEL[bet.type]}的中のため${WIN_MULTIPLIERS[bet.type]}倍`
+    }
+    return `${BET_TYPE_LABEL[bet.type]}が外れたため0倍`
+  }
+  const paired = bet.type === 'playerPair' ? playerPair : bankerPair
+  if (paired) return `${BET_TYPE_LABEL[bet.type]}成立のため${PAIR_MULTIPLIER}倍`
+  return `${BET_TYPE_LABEL[bet.type]}不成立のため0倍`
+}
+
 function App() {
   const [hand, setHand] = useState<DealtHand>(() => dealRandomHand())
   const [bet, setBet] = useState<Bet>(() => generateRandomBet())
@@ -90,10 +107,12 @@ function App() {
   const finalPlayerScore = calculateScore(hand.player)
   const finalBankerScore = calculateScore(hand.banker)
   const correctOutcome = judgeOutcome(hand.player, hand.banker)
+  const playerPair = isPair([hand.player[0], hand.player[1]])
+  const bankerPair = isPair([hand.banker[0], hand.banker[1]])
   const correctPayout = calculatePayout(bet, {
     outcome: correctOutcome,
-    playerPair: isPair([hand.player[0], hand.player[1]]),
-    bankerPair: isPair([hand.banker[0], hand.banker[1]]),
+    playerPair,
+    bankerPair,
   })
   const payoutChoices = useMemo(() => generateAnswerChoices(correctPayout), [hand, bet])
 
@@ -196,6 +215,12 @@ function App() {
       )}
       {payoutAnswer !== null && (
         <p>{payoutAnswer === correctPayout ? '正解' : '不正解'}</p>
+      )}
+      {payoutAnswer !== null && payoutAnswer !== correctPayout && (
+        <p>
+          正解: ${correctPayout}(
+          {formatPayoutReason(bet, correctOutcome, playerPair, bankerPair)})
+        </p>
       )}
     </div>
   )
