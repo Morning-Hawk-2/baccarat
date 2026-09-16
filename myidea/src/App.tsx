@@ -180,6 +180,14 @@ function App() {
     setPayoutAnswer(null)
   }
 
+  const handleResetScore = () => {
+    if (!window.confirm('スコアをリセットしますか?')) return
+    setPlayerStats(INITIAL_STATS)
+    setBankerStats(INITIAL_STATS)
+    setOutcomeStats(INITIAL_STATS)
+    setPayoutStats(INITIAL_STATS)
+  }
+
   return (
     <div>
       <h1>baccarat</h1>
@@ -204,6 +212,9 @@ function App() {
             %
           </li>
         </ul>
+        <button type="button" onClick={handleResetScore}>
+          スコアをリセット
+        </button>
       </section>
       <section>
         <h2>Player</h2>
