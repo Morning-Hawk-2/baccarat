@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import styles from './GameArea.module.css'
 import { generateAnswerChoices } from './baccarat/answerChoices'
 import type { Bet } from './baccarat/bet'
 import { generateRandomBet } from './baccarat/bet'
@@ -331,18 +332,20 @@ function App() {
       <p>
         今回のベット: {BET_TYPE_LABEL[bet.type]} ${bet.amount}
       </p>
-      <section>
-        <h2>Player</h2>
-        <p>
-          {(playerAnswer === null ? playerInitialCards : hand.player).map(formatCard).join(' ')}
-        </p>
-      </section>
-      <section>
-        <h2>Banker</h2>
-        <p>
-          {(bankerAnswer === null ? bankerInitialCards : hand.banker).map(formatCard).join(' ')}
-        </p>
-      </section>
+      <div className={styles.table}>
+        <section className={styles.hand}>
+          <h2>Player</h2>
+          <p className={styles.cards}>
+            {(playerAnswer === null ? playerInitialCards : hand.player).map(formatCard).join(' ')}
+          </p>
+        </section>
+        <section className={styles.hand}>
+          <h2>Banker</h2>
+          <p className={styles.cards}>
+            {(bankerAnswer === null ? bankerInitialCards : hand.banker).map(formatCard).join(' ')}
+          </p>
+        </section>
+      </div>
       {answerStep === 'player' && (
         <div>
           <button type="button" onClick={() => handlePlayerAnswer('draw')}>
@@ -422,7 +425,7 @@ function App() {
         </p>
       )}
       {answerStep === 'done' && (
-        <section>
+        <section className={styles.outcome}>
           <h2>支払い結果</h2>
           <p>{OUTCOME_LABEL[correctOutcome]}</p>
           <p>配当: ${correctPayout}</p>
