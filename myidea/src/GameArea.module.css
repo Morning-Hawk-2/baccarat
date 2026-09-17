@@ -73,6 +73,11 @@
   background: #e6c25c;
 }
 
+.button:focus-visible {
+  outline: 3px solid #1560ff;
+  outline-offset: 2px;
+}
+
 .buttonRow {
   display: flex;
   flex-wrap: wrap;
