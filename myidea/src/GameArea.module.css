@@ -23,10 +23,42 @@
   margin: 0 0 8px;
 }
 
-.cards {
-  font-size: 28px;
-  letter-spacing: 0.08em;
-  margin: 0;
+.cardRow {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  vertical-align: middle;
+}
+
+.card {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 64px;
+  background: #fff;
+  border: 1px solid #333;
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.35);
+  font-weight: 700;
+  line-height: 1;
+}
+
+.cardRed {
+  color: #c0392b;
+}
+
+.cardBlack {
+  color: #1a1a1a;
+}
+
+.cardRank {
+  font-size: 16px;
+}
+
+.cardSuit {
+  font-size: 20px;
 }
 
 .outcome {
@@ -89,6 +121,21 @@
   overflow-x: auto;
 }
 
+@keyframes cardSlideIn {
+  from {
+    transform: translateY(-24px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.dealAnimation {
+  animation: cardSlideIn 0.5s ease-out;
+}
+
 @media (max-width: 480px) {
   .hand {
     min-width: 0;
@@ -97,8 +144,17 @@
     padding: 12px 16px;
   }
 
-  .cards {
-    font-size: 22px;
+  .card {
+    width: 36px;
+    height: 52px;
+  }
+
+  .cardRank {
+    font-size: 13px;
+  }
+
+  .cardSuit {
+    font-size: 16px;
   }
 
   .panel,

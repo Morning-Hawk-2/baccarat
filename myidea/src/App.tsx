@@ -62,8 +62,34 @@ function combineStats(...statsList: Stats[]): Stats {
   )
 }
 
-function formatCard(card: Card): string {
-  return card.suit ? `${card.rank}${SUIT_SYMBOLS[card.suit]}` : card.rank
+function isRedSuit(suit?: Suit): boolean {
+  return suit === 'hearts' || suit === 'diamonds'
+}
+
+function PlayingCard({ card, animate }: { card: Card; animate?: boolean }) {
+  const classNames = [
+    styles.card,
+    isRedSuit(card.suit) ? styles.cardRed : styles.cardBlack,
+    animate ? styles.dealAnimation : '',
+  ]
+    .filter(Boolean)
+    .join(' ')
+  return (
+    <span className={classNames}>
+      <span className={styles.cardRank}>{card.rank}</span>
+      {card.suit && <span className={styles.cardSuit}>{SUIT_SYMBOLS[card.suit]}</span>}
+    </span>
+  )
+}
+
+function CardRow({ cards, animate }: { cards: Card[]; animate?: boolean }) {
+  return (
+    <span className={styles.cardRow}>
+      {cards.map((card, index) => (
+        <PlayingCard key={index} card={card} animate={animate} />
+      ))}
+    </span>
+  )
 }
 
 function formatPlayerReason(initialScore: number): string {
@@ -305,16 +331,6 @@ function App() {
           </p>
         </section>
       )}
-      {dealPhase === 'dealing' && (
-        <section>
-          <h2>カード配布中</h2>
-          <p>
-            今回のベット: {BET_TYPE_LABEL[bet.type]} ${bet.amount}
-          </p>
-          <p>Player: {playerInitialCards.map(formatCard).join(' ')}</p>
-          <p>Banker: {bankerInitialCards.map(formatCard).join(' ')}</p>
-        </section>
-      )}
       <section className={styles.panel}>
         <h2>スコア</h2>
         <ul>
@@ -334,6 +350,20 @@ function App() {
           スコアをリセット
         </button>
       </section>
+      {dealPhase === 'dealing' && (
+        <section>
+          <h2>カード配布中</h2>
+          <p>
+            今回のベット: {BET_TYPE_LABEL[bet.type]} ${bet.amount}
+          </p>
+          <p>
+            Player: <CardRow cards={playerInitialCards} animate />
+          </p>
+          <p>
+            Banker: <CardRow cards={bankerInitialCards} animate />
+          </p>
+        </section>
+      )}
       {dealPhase === 'answering' && (
         <>
       <p>
@@ -342,15 +372,11 @@ function App() {
       <div className={styles.table}>
         <section className={styles.hand}>
           <h2>Player</h2>
-          <p className={styles.cards}>
-            {(playerAnswer === null ? playerInitialCards : hand.player).map(formatCard).join(' ')}
-          </p>
+          <CardRow cards={playerAnswer === null ? playerInitialCards : hand.player} />
         </section>
         <section className={styles.hand}>
           <h2>Banker</h2>
-          <p className={styles.cards}>
-            {(bankerAnswer === null ? bankerInitialCards : hand.banker).map(formatCard).join(' ')}
-          </p>
+          <CardRow cards={bankerAnswer === null ? bankerInitialCards : hand.banker} />
         </section>
       </div>
       {answerStep === 'player' && (
