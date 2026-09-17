@@ -134,7 +134,7 @@
 
 ## 39. Viteのbaseパスをリポジトリ名に合わせて設定し、ローカルビルドで動作確認する
 完了定義: `npm run build && npm run preview` したブラウザで、`/baccarat/` 相当のパスからアプリが正しく表示される。
-状態: 未
+状態: 済
 
 ## 40. GitHub Actionsのビルド・デプロイworkflowを作成し、pushで自動実行されるようにする
 完了定義: GitHubにpushすると、Actionsタブでワークフローが実行され、成功(緑のチェックマーク)が表示される。
