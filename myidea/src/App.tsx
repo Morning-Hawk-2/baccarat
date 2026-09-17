@@ -356,12 +356,6 @@ function App() {
           <p>
             今回のベット: {BET_TYPE_LABEL[bet.type]} ${bet.amount}
           </p>
-          <p>
-            Player: <CardRow cards={playerInitialCards} animate />
-          </p>
-          <p>
-            Banker: <CardRow cards={bankerInitialCards} animate />
-          </p>
         </section>
       )}
       {dealPhase === 'answering' && (
@@ -372,11 +366,11 @@ function App() {
       <div className={styles.table}>
         <section className={styles.hand}>
           <h2>Player</h2>
-          <CardRow cards={playerAnswer === null ? playerInitialCards : hand.player} />
+          <CardRow cards={playerAnswer === null ? playerInitialCards : hand.player} animate />
         </section>
         <section className={styles.hand}>
           <h2>Banker</h2>
-          <CardRow cards={bankerAnswer === null ? bankerInitialCards : hand.banker} />
+          <CardRow cards={bankerAnswer === null ? bankerInitialCards : hand.banker} animate />
         </section>
       </div>
       {answerStep === 'player' && (
