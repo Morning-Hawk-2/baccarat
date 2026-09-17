@@ -156,6 +156,7 @@ function App() {
   const [outcomeStats, setOutcomeStats] = useState<Stats>(INITIAL_STATS)
   const [payoutStats, setPayoutStats] = useState<Stats>(INITIAL_STATS)
   const [showCheatSheet, setShowCheatSheet] = useState(false)
+  const [showScore, setShowScore] = useState(true)
   const [dealPhase, setDealPhase] = useState<DealPhase>('betting')
   const [answerStep, setAnswerStep] = useState<AnswerStep>('player')
 
@@ -331,24 +332,38 @@ function App() {
           </p>
         </section>
       )}
-      <section className={styles.panel}>
-        <h2>スコア</h2>
-        <ul>
-          <li>Player Draw/Stand: {accuracyPercent(playerStats)}%</li>
-          <li>Banker Draw/Stand: {accuracyPercent(bankerStats)}%</li>
-          <li>勝敗判定: {accuracyPercent(outcomeStats)}%</li>
-          <li>配当計算: {accuracyPercent(payoutStats)}%</li>
-          <li>
-            全体:{' '}
-            {accuracyPercent(
-              combineStats(playerStats, bankerStats, outcomeStats, payoutStats),
-            )}
-            %
-          </li>
-        </ul>
-        <button type="button" className={styles.button} onClick={handleResetScore}>
-          スコアをリセット
-        </button>
+      <section className={`${styles.panel} ${styles.scoreFixed}`}>
+        <div className={styles.scoreHeader}>
+          <h2>スコア</h2>
+          <button
+            type="button"
+            className={styles.button}
+            aria-expanded={showScore}
+            onClick={() => setShowScore((prev) => !prev)}
+          >
+            {showScore ? '閉じる' : '開く'}
+          </button>
+        </div>
+        {showScore && (
+          <>
+            <ul>
+              <li>Player Draw/Stand: {accuracyPercent(playerStats)}%</li>
+              <li>Banker Draw/Stand: {accuracyPercent(bankerStats)}%</li>
+              <li>勝敗判定: {accuracyPercent(outcomeStats)}%</li>
+              <li>配当計算: {accuracyPercent(payoutStats)}%</li>
+              <li>
+                全体:{' '}
+                {accuracyPercent(
+                  combineStats(playerStats, bankerStats, outcomeStats, payoutStats),
+                )}
+                %
+              </li>
+            </ul>
+            <button type="button" className={styles.button} onClick={handleResetScore}>
+              スコアをリセット
+            </button>
+          </>
+        )}
       </section>
       {dealPhase === 'dealing' && (
         <section>
