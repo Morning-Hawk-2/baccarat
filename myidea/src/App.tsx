@@ -107,6 +107,13 @@ function formatPayoutReason(
   return `${BET_TYPE_LABEL[bet.type]}不成立のため0倍`
 }
 
+const BANKER_DRAW_TABLE: { bankerScore: number; drawsWhenPlayerThirdCardIs: string }[] = [
+  { bankerScore: 3, drawsWhenPlayerThirdCardIs: '0-7, 9(8以外)' },
+  { bankerScore: 4, drawsWhenPlayerThirdCardIs: '2-7' },
+  { bankerScore: 5, drawsWhenPlayerThirdCardIs: '4-7' },
+  { bankerScore: 6, drawsWhenPlayerThirdCardIs: '6-7' },
+]
+
 function App() {
   const [hand, setHand] = useState<DealtHand>(() => dealRandomHand())
   const [bet, setBet] = useState<Bet>(() => generateRandomBet())
@@ -118,6 +125,7 @@ function App() {
   const [bankerStats, setBankerStats] = useState<Stats>(INITIAL_STATS)
   const [outcomeStats, setOutcomeStats] = useState<Stats>(INITIAL_STATS)
   const [payoutStats, setPayoutStats] = useState<Stats>(INITIAL_STATS)
+  const [showCheatSheet, setShowCheatSheet] = useState(false)
 
   const playerInitialCards = hand.player.slice(0, 2)
   const bankerInitialCards = hand.banker.slice(0, 2)
@@ -191,6 +199,55 @@ function App() {
   return (
     <div>
       <h1>baccarat</h1>
+      <button type="button" onClick={() => setShowCheatSheet((prev) => !prev)}>
+        第三カードルール表
+      </button>
+      {showCheatSheet && (
+        <section>
+          <h2>第三カードルール表</h2>
+          <h3>Player</h3>
+          <ul>
+            <li>0-5: 引く</li>
+            <li>6-7: 止める</li>
+            <li>8-9: ナチュラル(引かない)</li>
+          </ul>
+          <h3>Banker(Playerが止めた場合)</h3>
+          <ul>
+            <li>0-5: 引く</li>
+            <li>6-7: 止める</li>
+            <li>8-9: ナチュラル(引かない)</li>
+          </ul>
+          <h3>Banker(Playerが第三カードを引いた場合)</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Banker点数</th>
+                <th>引くPlayer第三カード</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>0-2</td>
+                <td>常に引く</td>
+              </tr>
+              {BANKER_DRAW_TABLE.map((row) => (
+                <tr key={row.bankerScore}>
+                  <td>{row.bankerScore}</td>
+                  <td>{row.drawsWhenPlayerThirdCardIs}</td>
+                </tr>
+              ))}
+              <tr>
+                <td>7</td>
+                <td>常に止める</td>
+              </tr>
+              <tr>
+                <td>8-9</td>
+                <td>ナチュラル(引かない)</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+      )}
       <button type="button" onClick={handleNextHand}>
         次のハンドへ
       </button>
