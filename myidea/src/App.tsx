@@ -238,11 +238,15 @@ function App() {
   return (
     <div>
       <h1>baccarat</h1>
-      <button type="button" onClick={() => setShowCheatSheet((prev) => !prev)}>
+      <button
+        type="button"
+        className={styles.button}
+        onClick={() => setShowCheatSheet((prev) => !prev)}
+      >
         第三カードルール表
       </button>
       {showCheatSheet && (
-        <section>
+        <section className={styles.panel}>
           <h2>第三カードルール表</h2>
           <h3>Player</h3>
           <ul>
@@ -287,7 +291,7 @@ function App() {
           </table>
         </section>
       )}
-      <button type="button" onClick={handleNextHand}>
+      <button type="button" className={styles.button} onClick={handleNextHand}>
         次のハンドへ
       </button>
       {dealPhase === 'betting' && (
@@ -308,7 +312,7 @@ function App() {
           <p>Banker: {bankerInitialCards.map(formatCard).join(' ')}</p>
         </section>
       )}
-      <section>
+      <section className={styles.panel}>
         <h2>スコア</h2>
         <ul>
           <li>Player Draw/Stand: {accuracyPercent(playerStats)}%</li>
@@ -323,7 +327,7 @@ function App() {
             %
           </li>
         </ul>
-        <button type="button" onClick={handleResetScore}>
+        <button type="button" className={styles.button} onClick={handleResetScore}>
           スコアをリセット
         </button>
       </section>
@@ -347,11 +351,11 @@ function App() {
         </section>
       </div>
       {answerStep === 'player' && (
-        <div>
-          <button type="button" onClick={() => handlePlayerAnswer('draw')}>
+        <div className={styles.buttonRow}>
+          <button type="button" className={styles.button} onClick={() => handlePlayerAnswer('draw')}>
             Draw
           </button>
-          <button type="button" onClick={() => handlePlayerAnswer('stand')}>
+          <button type="button" className={styles.button} onClick={() => handlePlayerAnswer('stand')}>
             Stand
           </button>
         </div>
@@ -366,11 +370,11 @@ function App() {
         </p>
       )}
       {answerStep === 'banker' && (
-        <div>
-          <button type="button" onClick={() => handleBankerAnswer('draw')}>
+        <div className={styles.buttonRow}>
+          <button type="button" className={styles.button} onClick={() => handleBankerAnswer('draw')}>
             Draw
           </button>
-          <button type="button" onClick={() => handleBankerAnswer('stand')}>
+          <button type="button" className={styles.button} onClick={() => handleBankerAnswer('stand')}>
             Stand
           </button>
         </div>
@@ -385,14 +389,14 @@ function App() {
         </p>
       )}
       {answerStep === 'outcome' && (
-        <div>
-          <button type="button" onClick={() => handleOutcomeAnswer('player')}>
+        <div className={styles.buttonRow}>
+          <button type="button" className={styles.button} onClick={() => handleOutcomeAnswer('player')}>
             Player win
           </button>
-          <button type="button" onClick={() => handleOutcomeAnswer('banker')}>
+          <button type="button" className={styles.button} onClick={() => handleOutcomeAnswer('banker')}>
             Banker win
           </button>
-          <button type="button" onClick={() => handleOutcomeAnswer('tie')}>
+          <button type="button" className={styles.button} onClick={() => handleOutcomeAnswer('tie')}>
             Tie
           </button>
         </div>
@@ -407,9 +411,14 @@ function App() {
         </p>
       )}
       {answerStep === 'payout' && (
-        <div>
+        <div className={styles.buttonRow}>
           {payoutChoices.map((choice) => (
-            <button key={choice} type="button" onClick={() => handlePayoutAnswer(choice)}>
+            <button
+              key={choice}
+              type="button"
+              className={styles.button}
+              onClick={() => handlePayoutAnswer(choice)}
+            >
               ${choice}
             </button>
           ))}
