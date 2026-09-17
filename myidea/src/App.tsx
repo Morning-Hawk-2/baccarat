@@ -39,7 +39,8 @@ const OUTCOME_LABEL: Record<Outcome, string> = {
 
 type DrawStandAnswer = 'draw' | 'stand'
 type DealPhase = 'betting' | 'dealing' | 'answering'
-const DEAL_PHASE_DELAY_MS = 1000
+type AnswerStep = 'player' | 'banker' | 'outcome' | 'payout' | 'done'
+const DEAL_PHASE_DELAY_MS = 2000
 
 interface Stats {
   correct: number
@@ -129,6 +130,7 @@ function App() {
   const [payoutStats, setPayoutStats] = useState<Stats>(INITIAL_STATS)
   const [showCheatSheet, setShowCheatSheet] = useState(false)
   const [dealPhase, setDealPhase] = useState<DealPhase>('betting')
+  const [answerStep, setAnswerStep] = useState<AnswerStep>('player')
 
   useEffect(() => {
     if (dealPhase === 'answering') return
@@ -136,6 +138,30 @@ function App() {
     const timer = setTimeout(() => setDealPhase(nextPhase), DEAL_PHASE_DELAY_MS)
     return () => clearTimeout(timer)
   }, [dealPhase])
+
+  useEffect(() => {
+    if (playerAnswer === null) return
+    const timer = setTimeout(() => setAnswerStep('banker'), DEAL_PHASE_DELAY_MS)
+    return () => clearTimeout(timer)
+  }, [playerAnswer])
+
+  useEffect(() => {
+    if (bankerAnswer === null) return
+    const timer = setTimeout(() => setAnswerStep('outcome'), DEAL_PHASE_DELAY_MS)
+    return () => clearTimeout(timer)
+  }, [bankerAnswer])
+
+  useEffect(() => {
+    if (outcomeAnswer === null) return
+    const timer = setTimeout(() => setAnswerStep('payout'), DEAL_PHASE_DELAY_MS)
+    return () => clearTimeout(timer)
+  }, [outcomeAnswer])
+
+  useEffect(() => {
+    if (payoutAnswer === null) return
+    const timer = setTimeout(() => setAnswerStep('done'), DEAL_PHASE_DELAY_MS)
+    return () => clearTimeout(timer)
+  }, [payoutAnswer])
 
   const playerInitialCards = hand.player.slice(0, 2)
   const bankerInitialCards = hand.banker.slice(0, 2)
@@ -197,6 +223,7 @@ function App() {
     setOutcomeAnswer(null)
     setPayoutAnswer(null)
     setDealPhase('betting')
+    setAnswerStep('player')
   }
 
   const handleResetScore = () => {
@@ -316,14 +343,16 @@ function App() {
           {(bankerAnswer === null ? bankerInitialCards : hand.banker).map(formatCard).join(' ')}
         </p>
       </section>
-      <div>
-        <button type="button" onClick={() => handlePlayerAnswer('draw')}>
-          Draw
-        </button>
-        <button type="button" onClick={() => handlePlayerAnswer('stand')}>
-          Stand
-        </button>
-      </div>
+      {answerStep === 'player' && (
+        <div>
+          <button type="button" onClick={() => handlePlayerAnswer('draw')}>
+            Draw
+          </button>
+          <button type="button" onClick={() => handlePlayerAnswer('stand')}>
+            Stand
+          </button>
+        </div>
+      )}
       {playerAnswer !== null && (
         <p>{playerAnswer === correctPlayerAnswer ? '正解' : '不正解'}</p>
       )}
@@ -333,7 +362,7 @@ function App() {
           {formatPlayerReason(playerInitialScore)})
         </p>
       )}
-      {playerAnswer !== null && (
+      {answerStep === 'banker' && (
         <div>
           <button type="button" onClick={() => handleBankerAnswer('draw')}>
             Draw
@@ -352,7 +381,7 @@ function App() {
           {formatBankerReason(bankerInitialScore, playerDrew, playerThirdCardValue)})
         </p>
       )}
-      {bankerAnswer !== null && (
+      {answerStep === 'outcome' && (
         <div>
           <button type="button" onClick={() => handleOutcomeAnswer('player')}>
             Player win
@@ -374,7 +403,7 @@ function App() {
           {formatOutcomeReason(finalPlayerScore, finalBankerScore)})
         </p>
       )}
-      {outcomeAnswer !== null && (
+      {answerStep === 'payout' && (
         <div>
           {payoutChoices.map((choice) => (
             <button key={choice} type="button" onClick={() => handlePayoutAnswer(choice)}>
