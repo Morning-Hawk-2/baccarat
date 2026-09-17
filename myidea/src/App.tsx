@@ -261,34 +261,36 @@ function App() {
             <li>8-9: ナチュラル(引かない)</li>
           </ul>
           <h3>Banker(Playerが第三カードを引いた場合)</h3>
-          <table>
-            <thead>
-              <tr>
-                <th>Banker点数</th>
-                <th>引くPlayer第三カード</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>0-2</td>
-                <td>常に引く</td>
-              </tr>
-              {BANKER_DRAW_TABLE.map((row) => (
-                <tr key={row.bankerScore}>
-                  <td>{row.bankerScore}</td>
-                  <td>{row.drawsWhenPlayerThirdCardIs}</td>
+          <div className={styles.tableScroll}>
+            <table>
+              <thead>
+                <tr>
+                  <th>Banker点数</th>
+                  <th>引くPlayer第三カード</th>
                 </tr>
-              ))}
-              <tr>
-                <td>7</td>
-                <td>常に止める</td>
-              </tr>
-              <tr>
-                <td>8-9</td>
-                <td>ナチュラル(引かない)</td>
-              </tr>
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>0-2</td>
+                  <td>常に引く</td>
+                </tr>
+                {BANKER_DRAW_TABLE.map((row) => (
+                  <tr key={row.bankerScore}>
+                    <td>{row.bankerScore}</td>
+                    <td>{row.drawsWhenPlayerThirdCardIs}</td>
+                  </tr>
+                ))}
+                <tr>
+                  <td>7</td>
+                  <td>常に止める</td>
+                </tr>
+                <tr>
+                  <td>8-9</td>
+                  <td>ナチュラル(引かない)</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </section>
       )}
       <button type="button" className={styles.button} onClick={handleNextHand}>

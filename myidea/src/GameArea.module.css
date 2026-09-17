@@ -79,3 +79,25 @@
   justify-content: center;
   gap: 4px;
 }
+
+.tableScroll {
+  overflow-x: auto;
+}
+
+@media (max-width: 480px) {
+  .hand {
+    min-width: 0;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px 16px;
+  }
+
+  .cards {
+    font-size: 22px;
+  }
+
+  .panel,
+  .outcome {
+    padding: 12px 16px;
+  }
+}
