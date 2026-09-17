@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { generateAnswerChoices } from './baccarat/answerChoices'
 import type { Bet } from './baccarat/bet'
 import { generateRandomBet } from './baccarat/bet'
@@ -38,6 +38,8 @@ const OUTCOME_LABEL: Record<Outcome, string> = {
 }
 
 type DrawStandAnswer = 'draw' | 'stand'
+type DealPhase = 'betting' | 'dealing' | 'answering'
+const DEAL_PHASE_DELAY_MS = 1000
 
 interface Stats {
   correct: number
@@ -126,6 +128,14 @@ function App() {
   const [outcomeStats, setOutcomeStats] = useState<Stats>(INITIAL_STATS)
   const [payoutStats, setPayoutStats] = useState<Stats>(INITIAL_STATS)
   const [showCheatSheet, setShowCheatSheet] = useState(false)
+  const [dealPhase, setDealPhase] = useState<DealPhase>('betting')
+
+  useEffect(() => {
+    if (dealPhase === 'answering') return
+    const nextPhase: DealPhase = dealPhase === 'betting' ? 'dealing' : 'answering'
+    const timer = setTimeout(() => setDealPhase(nextPhase), DEAL_PHASE_DELAY_MS)
+    return () => clearTimeout(timer)
+  }, [dealPhase])
 
   const playerInitialCards = hand.player.slice(0, 2)
   const bankerInitialCards = hand.banker.slice(0, 2)
@@ -186,6 +196,7 @@ function App() {
     setBankerAnswer(null)
     setOutcomeAnswer(null)
     setPayoutAnswer(null)
+    setDealPhase('betting')
   }
 
   const handleResetScore = () => {
@@ -251,9 +262,24 @@ function App() {
       <button type="button" onClick={handleNextHand}>
         次のハンドへ
       </button>
-      <p>
-        今回のベット: {BET_TYPE_LABEL[bet.type]} ${bet.amount}
-      </p>
+      {dealPhase === 'betting' && (
+        <section>
+          <h2>ベット受付中</h2>
+          <p>
+            今回のベット: {BET_TYPE_LABEL[bet.type]} ${bet.amount}
+          </p>
+        </section>
+      )}
+      {dealPhase === 'dealing' && (
+        <section>
+          <h2>カード配布中</h2>
+          <p>
+            今回のベット: {BET_TYPE_LABEL[bet.type]} ${bet.amount}
+          </p>
+          <p>Player: {playerInitialCards.map(formatCard).join(' ')}</p>
+          <p>Banker: {bankerInitialCards.map(formatCard).join(' ')}</p>
+        </section>
+      )}
       <section>
         <h2>スコア</h2>
         <ul>
@@ -273,6 +299,11 @@ function App() {
           スコアをリセット
         </button>
       </section>
+      {dealPhase === 'answering' && (
+        <>
+      <p>
+        今回のベット: {BET_TYPE_LABEL[bet.type]} ${bet.amount}
+      </p>
       <section>
         <h2>Player</h2>
         <p>
@@ -360,6 +391,8 @@ function App() {
           正解: ${correctPayout}(
           {formatPayoutReason(bet, correctOutcome, playerPair, bankerPair)})
         </p>
+      )}
+        </>
       )}
     </div>
   )
