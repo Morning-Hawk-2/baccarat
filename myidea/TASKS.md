@@ -138,7 +138,7 @@
 
 ## 40. GitHub Actionsのビルド・デプロイworkflowを作成し、pushで自動実行されるようにする
 完了定義: GitHubにpushすると、Actionsタブでワークフローが実行され、成功(緑のチェックマーク)が表示される。
-状態: 未
+状態: 確認待ち
 
 ## 41. GitHub Pagesの公開設定を行い、公開URLでアプリが表示されることを確認する
 完了定義: `https://<user>.github.io/baccarat/` にアクセスするとアプリが表示される。
