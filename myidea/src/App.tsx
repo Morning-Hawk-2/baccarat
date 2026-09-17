@@ -421,6 +421,13 @@ function App() {
           {formatPayoutReason(bet, correctOutcome, playerPair, bankerPair)})
         </p>
       )}
+      {answerStep === 'done' && (
+        <section>
+          <h2>支払い結果</h2>
+          <p>{OUTCOME_LABEL[correctOutcome]}</p>
+          <p>配当: ${correctPayout}</p>
+        </section>
+      )}
         </>
       )}
     </div>
