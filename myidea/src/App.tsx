@@ -236,11 +236,12 @@ function App() {
   }
 
   return (
-    <div>
+    <main>
       <h1>baccarat</h1>
       <button
         type="button"
         className={styles.button}
+        aria-expanded={showCheatSheet}
         onClick={() => setShowCheatSheet((prev) => !prev)}
       >
         第三カードルール表
@@ -363,7 +364,7 @@ function App() {
         </div>
       )}
       {playerAnswer !== null && (
-        <p>{playerAnswer === correctPlayerAnswer ? '正解' : '不正解'}</p>
+        <p aria-live="polite">{playerAnswer === correctPlayerAnswer ? '正解' : '不正解'}</p>
       )}
       {playerAnswer !== null && playerAnswer !== correctPlayerAnswer && (
         <p>
@@ -382,7 +383,7 @@ function App() {
         </div>
       )}
       {bankerAnswer !== null && (
-        <p>{bankerAnswer === correctBankerAnswer ? '正解' : '不正解'}</p>
+        <p aria-live="polite">{bankerAnswer === correctBankerAnswer ? '正解' : '不正解'}</p>
       )}
       {bankerAnswer !== null && bankerAnswer !== correctBankerAnswer && (
         <p>
@@ -404,7 +405,7 @@ function App() {
         </div>
       )}
       {outcomeAnswer !== null && (
-        <p>{outcomeAnswer === correctOutcome ? '正解' : '不正解'}</p>
+        <p aria-live="polite">{outcomeAnswer === correctOutcome ? '正解' : '不正解'}</p>
       )}
       {outcomeAnswer !== null && outcomeAnswer !== correctOutcome && (
         <p>
@@ -427,7 +428,7 @@ function App() {
         </div>
       )}
       {payoutAnswer !== null && (
-        <p>{payoutAnswer === correctPayout ? '正解' : '不正解'}</p>
+        <p aria-live="polite">{payoutAnswer === correctPayout ? '正解' : '不正解'}</p>
       )}
       {payoutAnswer !== null && payoutAnswer !== correctPayout && (
         <p>
@@ -444,7 +445,7 @@ function App() {
       )}
         </>
       )}
-    </div>
+    </main>
   )
 }
 
