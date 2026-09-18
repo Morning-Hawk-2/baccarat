@@ -66,28 +66,54 @@ function isRedSuit(suit?: Suit): boolean {
   return suit === 'hearts' || suit === 'diamonds'
 }
 
-function PlayingCard({ card, animate }: { card: Card; animate?: boolean }) {
-  const classNames = [
-    styles.card,
-    isRedSuit(card.suit) ? styles.cardRed : styles.cardBlack,
-    animate ? styles.dealAnimation : '',
-  ]
+// バカラ公式の配布順(Player1枚目→Banker1枚目→Player2枚目→Banker2枚目)における
+// 各手札の連番。3枚目以降(indexが2以上)はこの演出の対象外。
+function initialDealSeqIndex(handType: 'player' | 'banker', cardIndex: number): number | null {
+  if (cardIndex === 0) return handType === 'player' ? 0 : 1
+  if (cardIndex === 1) return handType === 'player' ? 2 : 3
+  return null
+}
+
+function PlayingCard({ card, faceUp, dealAnimate }: { card: Card; faceUp: boolean; dealAnimate?: boolean }) {
+  const innerClassNames = [styles.flipCardInner, faceUp ? styles.isFlipped : '']
     .filter(Boolean)
     .join(' ')
+  const frontClassNames = [styles.flipCardFront, isRedSuit(card.suit) ? styles.cardRed : styles.cardBlack].join(' ')
+  const outerClassNames = [styles.flipCard, dealAnimate ? styles.dealAnimation : ''].filter(Boolean).join(' ')
   return (
-    <span className={classNames}>
-      <span className={styles.cardRank}>{card.rank}</span>
-      {card.suit && <span className={styles.cardSuit}>{SUIT_SYMBOLS[card.suit]}</span>}
+    <span className={outerClassNames}>
+      <span className={innerClassNames}>
+        <span className={styles.flipCardBack} aria-hidden="true" />
+        <span className={frontClassNames}>
+          <span className={styles.cardRank}>{card.rank}</span>
+          {card.suit && <span className={styles.cardSuit}>{SUIT_SYMBOLS[card.suit]}</span>}
+        </span>
+      </span>
     </span>
   )
 }
 
-function CardRow({ cards, animate }: { cards: Card[]; animate?: boolean }) {
+function HandCards({
+  cards,
+  handType,
+  dealStep,
+  revealStep,
+}: {
+  cards: Card[]
+  handType: 'player' | 'banker'
+  dealStep: number
+  revealStep: number
+}) {
   return (
     <span className={styles.cardRow}>
-      {cards.map((card, index) => (
-        <PlayingCard key={index} card={card} animate={animate} />
-      ))}
+      {cards.map((card, index) => {
+        const seqIndex = initialDealSeqIndex(handType, index)
+        if (seqIndex === null) {
+          return <PlayingCard key={index} card={card} faceUp dealAnimate />
+        }
+        if (dealStep <= seqIndex) return null
+        return <PlayingCard key={index} card={card} faceUp={revealStep > seqIndex} dealAnimate />
+      })}
     </span>
   )
 }
@@ -159,6 +185,8 @@ function App() {
   const [showScore, setShowScore] = useState(true)
   const [dealPhase, setDealPhase] = useState<DealPhase>('betting')
   const [answerStep, setAnswerStep] = useState<AnswerStep>('player')
+  const [dealStep, setDealStep] = useState(0)
+  const [revealStep, setRevealStep] = useState(0)
 
   useEffect(() => {
     if (dealPhase === 'answering') return
@@ -166,6 +194,18 @@ function App() {
     const timer = setTimeout(() => setDealPhase(nextPhase), DEAL_PHASE_DELAY_MS)
     return () => clearTimeout(timer)
   }, [dealPhase])
+
+  useEffect(() => {
+    if (dealPhase !== 'answering' || dealStep >= 4) return
+    const timer = setTimeout(() => setDealStep((step) => step + 1), 300)
+    return () => clearTimeout(timer)
+  }, [dealPhase, dealStep])
+
+  useEffect(() => {
+    if (dealStep < 4 || revealStep >= 4) return
+    const timer = setTimeout(() => setRevealStep((step) => step + 1), 400)
+    return () => clearTimeout(timer)
+  }, [dealStep, revealStep])
 
   useEffect(() => {
     if (playerAnswer === null) return
@@ -252,6 +292,8 @@ function App() {
     setPayoutAnswer(null)
     setDealPhase('betting')
     setAnswerStep('player')
+    setDealStep(0)
+    setRevealStep(0)
   }
 
   const handleResetScore = () => {
@@ -381,14 +423,24 @@ function App() {
       <div className={styles.table}>
         <section className={styles.hand}>
           <h2>Player</h2>
-          <CardRow cards={playerAnswer === null ? playerInitialCards : hand.player} animate />
+          <HandCards
+            cards={playerAnswer === null ? playerInitialCards : hand.player}
+            handType="player"
+            dealStep={dealStep}
+            revealStep={revealStep}
+          />
         </section>
         <section className={styles.hand}>
           <h2>Banker</h2>
-          <CardRow cards={bankerAnswer === null ? bankerInitialCards : hand.banker} animate />
+          <HandCards
+            cards={bankerAnswer === null ? bankerInitialCards : hand.banker}
+            handType="banker"
+            dealStep={dealStep}
+            revealStep={revealStep}
+          />
         </section>
       </div>
-      {answerStep === 'player' && (
+      {answerStep === 'player' && revealStep >= 4 && (
         <div className={styles.buttonRow}>
           <button type="button" className={styles.button} onClick={() => handlePlayerAnswer('draw')}>
             Draw
