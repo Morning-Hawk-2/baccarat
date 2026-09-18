@@ -421,7 +421,9 @@ function App() {
         今回のベット: {BET_TYPE_LABEL[bet.type]} ${bet.amount}
       </p>
       <div className={styles.table}>
-        <section className={styles.hand}>
+        <section
+          className={`${styles.hand} ${answerStep === 'player' && revealStep >= 4 ? styles.activeHand : ''}`}
+        >
           <h2>Player</h2>
           <HandCards
             cards={playerAnswer === null ? playerInitialCards : hand.player}
@@ -430,7 +432,7 @@ function App() {
             revealStep={revealStep}
           />
         </section>
-        <section className={styles.hand}>
+        <section className={`${styles.hand} ${answerStep === 'banker' ? styles.activeHand : ''}`}>
           <h2>Banker</h2>
           <HandCards
             cards={bankerAnswer === null ? bankerInitialCards : hand.banker}
@@ -441,13 +443,16 @@ function App() {
         </section>
       </div>
       {answerStep === 'player' && revealStep >= 4 && (
-        <div className={styles.buttonRow}>
-          <button type="button" className={styles.button} onClick={() => handlePlayerAnswer('draw')}>
-            Draw
-          </button>
-          <button type="button" className={styles.button} onClick={() => handlePlayerAnswer('stand')}>
-            Stand
-          </button>
+        <div className={styles.answerPrompt}>
+          <p className={styles.answerPromptLabel}>Playerの判断: Draw する? Stand する?</p>
+          <div className={styles.buttonRow}>
+            <button type="button" className={styles.button} onClick={() => handlePlayerAnswer('draw')}>
+              Draw
+            </button>
+            <button type="button" className={styles.button} onClick={() => handlePlayerAnswer('stand')}>
+              Stand
+            </button>
+          </div>
         </div>
       )}
       {playerAnswer !== null && (
@@ -460,13 +465,16 @@ function App() {
         </p>
       )}
       {answerStep === 'banker' && (
-        <div className={styles.buttonRow}>
-          <button type="button" className={styles.button} onClick={() => handleBankerAnswer('draw')}>
-            Draw
-          </button>
-          <button type="button" className={styles.button} onClick={() => handleBankerAnswer('stand')}>
-            Stand
-          </button>
+        <div className={styles.answerPrompt}>
+          <p className={styles.answerPromptLabel}>Bankerの判断: Draw する? Stand する?</p>
+          <div className={styles.buttonRow}>
+            <button type="button" className={styles.button} onClick={() => handleBankerAnswer('draw')}>
+              Draw
+            </button>
+            <button type="button" className={styles.button} onClick={() => handleBankerAnswer('stand')}>
+              Stand
+            </button>
+          </div>
         </div>
       )}
       {bankerAnswer !== null && (
