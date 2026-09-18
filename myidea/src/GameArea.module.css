@@ -211,6 +211,69 @@
   overflow-x: auto;
 }
 
+.ruleTable {
+  border-collapse: collapse;
+  margin: 0 auto;
+  font-size: 14px;
+}
+
+.ruleTable th,
+.ruleTable td {
+  border: 1px solid #0a3320;
+  padding: 6px 8px;
+  text-align: center;
+}
+
+.ruleCorner,
+.ruleAxisLabel,
+.ruleAxisLabelVertical,
+.ruleHeaderCell {
+  background: #0f4d30;
+  color: #d4af37;
+  font-weight: 700;
+}
+
+.ruleAxisLabelVertical {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  letter-spacing: 0.05em;
+}
+
+.ruleCell {
+  background: #fdf8ec;
+  color: #1a1a1a;
+  min-width: 40px;
+}
+
+.ruleCellDraw {
+  background: #fdf8ec;
+}
+
+.ruleCellNote {
+  background: #e7d7a8;
+  color: #5c3d00;
+  font-weight: 700;
+  font-style: italic;
+}
+
+.ruleCellWin {
+  background: #fff4d1;
+  color: #0f4d30;
+  font-weight: 700;
+}
+
+.ruleCellLose {
+  background: #fff4d1;
+  color: #8c1c1c;
+  font-weight: 700;
+}
+
+.ruleCellTie {
+  background: #d4af37;
+  color: #0a3320;
+  font-weight: 700;
+}
+
 @keyframes cardSlideIn {
   from {
     transform: translateX(-60px);

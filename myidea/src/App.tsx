@@ -163,13 +163,6 @@ function formatPayoutReason(
   return `${BET_TYPE_LABEL[bet.type]}不成立のため0倍`
 }
 
-const BANKER_DRAW_TABLE: { bankerScore: number; drawsWhenPlayerThirdCardIs: string }[] = [
-  { bankerScore: 3, drawsWhenPlayerThirdCardIs: '0-7, 9(8以外)' },
-  { bankerScore: 4, drawsWhenPlayerThirdCardIs: '2-7' },
-  { bankerScore: 5, drawsWhenPlayerThirdCardIs: '4-7' },
-  { bankerScore: 6, drawsWhenPlayerThirdCardIs: '6-7' },
-]
-
 function App() {
   const [hand, setHand] = useState<DealtHand>(() => dealRandomHand())
   const [bet, setBet] = useState<Bet>(() => generateRandomBet())
@@ -318,45 +311,96 @@ function App() {
       {showCheatSheet && (
         <section className={styles.panel}>
           <h2>第三カードルール表</h2>
-          <h3>Player</h3>
-          <ul>
-            <li>0-5: 引く</li>
-            <li>6-7: 止める</li>
-            <li>8-9: ナチュラル(引かない)</li>
-          </ul>
-          <h3>Banker(Playerが止めた場合)</h3>
-          <ul>
-            <li>0-5: 引く</li>
-            <li>6-7: 止める</li>
-            <li>8-9: ナチュラル(引かない)</li>
-          </ul>
-          <h3>Banker(Playerが第三カードを引いた場合)</h3>
           <div className={styles.tableScroll}>
-            <table>
+            <table className={styles.ruleTable}>
               <thead>
                 <tr>
-                  <th>Banker点数</th>
-                  <th>引くPlayer第三カード</th>
+                  <th className={styles.ruleCorner} colSpan={2} rowSpan={2}>
+                    3枚目のカード条件ルール
+                  </th>
+                  <th className={styles.ruleAxisLabel} colSpan={10}>
+                    プレイヤー / 最初の2枚のカードの合計が以下の場合
+                  </th>
+                </tr>
+                <tr>
+                  {Array.from({ length: 10 }, (_, n) => (
+                    <th key={n} className={styles.ruleHeaderCell}>
+                      {n}
+                    </th>
+                  ))}
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <td>0-2</td>
-                  <td>常に引く</td>
+                  <th className={styles.ruleAxisLabelVertical} rowSpan={10}>
+                    バンカー / 最初の2枚のカードの合計が右の場合
+                  </th>
+                  <th className={styles.ruleHeaderCell}>0</th>
+                  <td className={`${styles.ruleCell} ${styles.ruleCellDraw}`} colSpan={6} rowSpan={3}>
+                    プレイヤー/バンカーともに3枚目のカードを引く
+                  </td>
+                  <td className={`${styles.ruleCell} ${styles.ruleCellDraw}`} colSpan={2} rowSpan={6}>
+                    バンカーのみ3枚目のカードを引く
+                  </td>
+                  <td className={`${styles.ruleCell} ${styles.ruleCellWin}`} colSpan={2} rowSpan={8}>
+                    プレイヤーの勝ち
+                  </td>
                 </tr>
-                {BANKER_DRAW_TABLE.map((row) => (
-                  <tr key={row.bankerScore}>
-                    <td>{row.bankerScore}</td>
-                    <td>{row.drawsWhenPlayerThirdCardIs}</td>
-                  </tr>
-                ))}
                 <tr>
-                  <td>7</td>
-                  <td>常に止める</td>
+                  <th className={styles.ruleHeaderCell}>1</th>
                 </tr>
                 <tr>
-                  <td>8-9</td>
-                  <td>ナチュラル(引かない)</td>
+                  <th className={styles.ruleHeaderCell}>2</th>
+                </tr>
+                <tr>
+                  <th className={styles.ruleHeaderCell}>3</th>
+                  <td className={`${styles.ruleCell} ${styles.ruleCellNote}`} colSpan={3} rowSpan={4}>
+                    プレイヤーの3枚目のカードが次の場合はバンカーも3枚目のカードを引く
+                  </td>
+                  <td className={`${styles.ruleCell} ${styles.ruleCellDraw}`} colSpan={3}>
+                    0,1,2,3,4,5,6,7,9
+                  </td>
+                </tr>
+                <tr>
+                  <th className={styles.ruleHeaderCell}>4</th>
+                  <td className={`${styles.ruleCell} ${styles.ruleCellDraw}`} colSpan={3}>
+                    2,3,4,5,6,7
+                  </td>
+                </tr>
+                <tr>
+                  <th className={styles.ruleHeaderCell}>5</th>
+                  <td className={`${styles.ruleCell} ${styles.ruleCellDraw}`} colSpan={3}>
+                    4,5,6,7
+                  </td>
+                </tr>
+                <tr>
+                  <th className={styles.ruleHeaderCell}>6</th>
+                  <td className={`${styles.ruleCell} ${styles.ruleCellDraw}`} colSpan={3}>
+                    6,7
+                  </td>
+                  <td className={`${styles.ruleCell} ${styles.ruleCellTie}`}>引き分け</td>
+                  <td className={`${styles.ruleCell} ${styles.ruleCellWin}`}>プレイヤーの勝ち</td>
+                </tr>
+                <tr>
+                  <th className={styles.ruleHeaderCell}>7</th>
+                  <td className={`${styles.ruleCell} ${styles.ruleCellDraw}`} colSpan={6}>
+                    プレイヤーのみ3枚目のカードを引く
+                  </td>
+                  <td className={`${styles.ruleCell} ${styles.ruleCellLose}`}>バンカーの勝ち</td>
+                  <td className={`${styles.ruleCell} ${styles.ruleCellTie}`}>引き分け</td>
+                </tr>
+                <tr>
+                  <th className={styles.ruleHeaderCell}>8</th>
+                  <td className={`${styles.ruleCell} ${styles.ruleCellLose}`} colSpan={8} rowSpan={2}>
+                    バンカーの勝ち
+                  </td>
+                  <td className={`${styles.ruleCell} ${styles.ruleCellTie}`}>引き分け</td>
+                  <td className={`${styles.ruleCell} ${styles.ruleCellWin}`}>プレイヤーの勝ち</td>
+                </tr>
+                <tr>
+                  <th className={styles.ruleHeaderCell}>9</th>
+                  <td className={`${styles.ruleCell} ${styles.ruleCellLose}`}>バンカーの勝ち</td>
+                  <td className={`${styles.ruleCell} ${styles.ruleCellTie}`}>引き分け</td>
                 </tr>
               </tbody>
             </table>
