@@ -164,7 +164,7 @@ function formatPayoutReason(
 }
 
 function App() {
-  const [screen] = useState<'title' | 'main'>('title')
+  const [screen, setScreen] = useState<'title' | 'main'>('title')
   const [hand, setHand] = useState<DealtHand>(() => dealRandomHand())
   const [bet, setBet] = useState<Bet>(() => generateRandomBet())
   const [playerAnswer, setPlayerAnswer] = useState<DrawStandAnswer | null>(null)
@@ -302,6 +302,9 @@ function App() {
     return (
       <main>
         <h1>バカラディーラー判断練習</h1>
+        <button type="button" className={styles.button} onClick={() => setScreen('main')}>
+          はじめる
+        </button>
       </main>
     )
   }
