@@ -165,6 +165,7 @@ function formatPayoutReason(
 
 function App() {
   const [screen, setScreen] = useState<'title' | 'main'>('title')
+  const [showHelp, setShowHelp] = useState(false)
   const [hand, setHand] = useState<DealtHand>(() => dealRandomHand())
   const [bet, setBet] = useState<Bet>(() => generateRandomBet())
   const [playerAnswer, setPlayerAnswer] = useState<DrawStandAnswer | null>(null)
@@ -176,7 +177,7 @@ function App() {
   const [outcomeStats, setOutcomeStats] = useState<Stats>(INITIAL_STATS)
   const [payoutStats, setPayoutStats] = useState<Stats>(INITIAL_STATS)
   const [showCheatSheet, setShowCheatSheet] = useState(false)
-  const [showScore, setShowScore] = useState(true)
+  const [showScore, setShowScore] = useState(false)
   const [dealPhase, setDealPhase] = useState<DealPhase>('betting')
   const [answerStep, setAnswerStep] = useState<AnswerStep>('player')
   const [dealStep, setDealStep] = useState(0)
@@ -300,137 +301,156 @@ function App() {
 
   if (screen === 'title') {
     return (
-      <main>
+      <main className={styles.titleScreen}>
         <h1>バカラディーラー判断練習</h1>
-        <p>
-          Player・Bankerそれぞれの手札が表示されたら、第三カードルールに沿ってDraw(引く)かStand(止める)かを答えます。
-        </p>
-        <p>
-          全カードが公開されたら、Player win / Banker win / Tieの3択で勝敗を答えます。
-        </p>
-        <p>
-          勝敗が確定したら、配当額を4択の中から選んで答えます。
-        </p>
-        <button type="button" className={styles.button} onClick={() => setScreen('main')}>
-          はじめる
-        </button>
+        <div className={styles.titleActions}>
+          <button type="button" className={styles.button} onClick={() => setScreen('main')}>
+            はじめる
+          </button>
+          <button
+            type="button"
+            className={styles.button}
+            aria-expanded={showHelp}
+            onClick={() => setShowHelp((prev) => !prev)}
+          >
+            使い方
+          </button>
+        </div>
+        {showHelp && (
+          <div className={styles.titleHelp}>
+            <p>
+              Player・Bankerそれぞれの手札が表示されたら、第三カードルールに沿ってDraw(引く)かStand(止める)かを答えます。
+            </p>
+            <p>
+              全カードが公開されたら、Player win / Banker win / Tieの3択で勝敗を答えます。
+            </p>
+            <p>
+              勝敗が確定したら、配当額を4択の中から選んで答えます。
+            </p>
+          </div>
+        )}
       </main>
     )
   }
 
   return (
     <main>
-      <h1>baccarat</h1>
-      <button
-        type="button"
-        className={styles.button}
-        aria-expanded={showCheatSheet}
-        onClick={() => setShowCheatSheet((prev) => !prev)}
-      >
-        第三カードルール表
-      </button>
-      {showCheatSheet && (
-        <section className={styles.panel}>
-          <h2>第三カードルール表</h2>
-          <div className={styles.tableScroll}>
-            <table className={styles.ruleTable}>
-              <thead>
-                <tr>
-                  <th className={styles.ruleCorner} colSpan={2} rowSpan={2}>
-                    3枚目のカード条件ルール
-                  </th>
-                  <th className={styles.ruleAxisLabel} colSpan={10}>
-                    プレイヤー / 最初の2枚のカードの合計が以下の場合
-                  </th>
-                </tr>
-                <tr>
-                  {Array.from({ length: 10 }, (_, n) => (
-                    <th key={n} className={styles.ruleHeaderCell}>
-                      {n}
+      <h1 className={styles.mainHeading}>Baccarat</h1>
+      <div className={styles.topButtons}>
+        <button type="button" className={styles.button} onClick={() => setScreen('title')}>
+          タイトルへ戻る
+        </button>
+        <button
+          type="button"
+          className={styles.button}
+          aria-expanded={showCheatSheet}
+          onClick={() => setShowCheatSheet((prev) => !prev)}
+        >
+          第三カードルール表
+        </button>
+        {showCheatSheet && (
+          <section className={styles.panel}>
+            <h2>第三カードルール表</h2>
+            <div className={styles.tableScroll}>
+              <table className={styles.ruleTable}>
+                <thead>
+                  <tr>
+                    <th className={styles.ruleCorner} colSpan={2} rowSpan={2}>
+                      3枚目のカード条件ルール
                     </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <th className={styles.ruleAxisLabelVertical} rowSpan={10}>
-                    バンカー / 最初の2枚のカードの合計が右の場合
-                  </th>
-                  <th className={styles.ruleHeaderCell}>0</th>
-                  <td className={`${styles.ruleCell} ${styles.ruleCellDraw}`} colSpan={6} rowSpan={3}>
-                    プレイヤー/バンカーともに3枚目のカードを引く
-                  </td>
-                  <td className={`${styles.ruleCell} ${styles.ruleCellDraw}`} colSpan={2} rowSpan={6}>
-                    バンカーのみ3枚目のカードを引く
-                  </td>
-                  <td className={`${styles.ruleCell} ${styles.ruleCellWin}`} colSpan={2} rowSpan={8}>
-                    プレイヤーの勝ち
-                  </td>
-                </tr>
-                <tr>
-                  <th className={styles.ruleHeaderCell}>1</th>
-                </tr>
-                <tr>
-                  <th className={styles.ruleHeaderCell}>2</th>
-                </tr>
-                <tr>
-                  <th className={styles.ruleHeaderCell}>3</th>
-                  <td className={`${styles.ruleCell} ${styles.ruleCellNote}`} colSpan={3} rowSpan={4}>
-                    プレイヤーの3枚目のカードが次の場合はバンカーも3枚目のカードを引く
-                  </td>
-                  <td className={`${styles.ruleCell} ${styles.ruleCellDraw}`} colSpan={3}>
-                    0,1,2,3,4,5,6,7,9
-                  </td>
-                </tr>
-                <tr>
-                  <th className={styles.ruleHeaderCell}>4</th>
-                  <td className={`${styles.ruleCell} ${styles.ruleCellDraw}`} colSpan={3}>
-                    2,3,4,5,6,7
-                  </td>
-                </tr>
-                <tr>
-                  <th className={styles.ruleHeaderCell}>5</th>
-                  <td className={`${styles.ruleCell} ${styles.ruleCellDraw}`} colSpan={3}>
-                    4,5,6,7
-                  </td>
-                </tr>
-                <tr>
-                  <th className={styles.ruleHeaderCell}>6</th>
-                  <td className={`${styles.ruleCell} ${styles.ruleCellDraw}`} colSpan={3}>
-                    6,7
-                  </td>
-                  <td className={`${styles.ruleCell} ${styles.ruleCellTie}`}>引き分け</td>
-                  <td className={`${styles.ruleCell} ${styles.ruleCellWin}`}>プレイヤーの勝ち</td>
-                </tr>
-                <tr>
-                  <th className={styles.ruleHeaderCell}>7</th>
-                  <td className={`${styles.ruleCell} ${styles.ruleCellDraw}`} colSpan={6}>
-                    プレイヤーのみ3枚目のカードを引く
-                  </td>
-                  <td className={`${styles.ruleCell} ${styles.ruleCellLose}`}>バンカーの勝ち</td>
-                  <td className={`${styles.ruleCell} ${styles.ruleCellTie}`}>引き分け</td>
-                </tr>
-                <tr>
-                  <th className={styles.ruleHeaderCell}>8</th>
-                  <td className={`${styles.ruleCell} ${styles.ruleCellLose}`} colSpan={8} rowSpan={2}>
-                    バンカーの勝ち
-                  </td>
-                  <td className={`${styles.ruleCell} ${styles.ruleCellTie}`}>引き分け</td>
-                  <td className={`${styles.ruleCell} ${styles.ruleCellWin}`}>プレイヤーの勝ち</td>
-                </tr>
-                <tr>
-                  <th className={styles.ruleHeaderCell}>9</th>
-                  <td className={`${styles.ruleCell} ${styles.ruleCellLose}`}>バンカーの勝ち</td>
-                  <td className={`${styles.ruleCell} ${styles.ruleCellTie}`}>引き分け</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </section>
-      )}
-      <button type="button" className={styles.button} onClick={handleNextHand}>
-        次のハンドへ
-      </button>
+                    <th className={styles.ruleAxisLabel} colSpan={10}>
+                      プレイヤー / 最初の2枚のカードの合計が以下の場合
+                    </th>
+                  </tr>
+                  <tr>
+                    {Array.from({ length: 10 }, (_, n) => (
+                      <th key={n} className={styles.ruleHeaderCell}>
+                        {n}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <th className={styles.ruleAxisLabelVertical} rowSpan={10}>
+                      バンカー / 最初の2枚のカードの合計が右の場合
+                    </th>
+                    <th className={styles.ruleHeaderCell}>0</th>
+                    <td className={`${styles.ruleCell} ${styles.ruleCellDraw}`} colSpan={6} rowSpan={3}>
+                      プレイヤー/バンカーともに3枚目のカードを引く
+                    </td>
+                    <td className={`${styles.ruleCell} ${styles.ruleCellDraw}`} colSpan={2} rowSpan={6}>
+                      バンカーのみ3枚目のカードを引く
+                    </td>
+                    <td className={`${styles.ruleCell} ${styles.ruleCellWin}`} colSpan={2} rowSpan={8}>
+                      プレイヤーの勝ち
+                    </td>
+                  </tr>
+                  <tr>
+                    <th className={styles.ruleHeaderCell}>1</th>
+                  </tr>
+                  <tr>
+                    <th className={styles.ruleHeaderCell}>2</th>
+                  </tr>
+                  <tr>
+                    <th className={styles.ruleHeaderCell}>3</th>
+                    <td className={`${styles.ruleCell} ${styles.ruleCellNote}`} colSpan={3} rowSpan={4}>
+                      プレイヤーの3枚目のカードが次の場合はバンカーも3枚目のカードを引く
+                    </td>
+                    <td className={`${styles.ruleCell} ${styles.ruleCellDraw}`} colSpan={3}>
+                      0,1,2,3,4,5,6,7,9
+                    </td>
+                  </tr>
+                  <tr>
+                    <th className={styles.ruleHeaderCell}>4</th>
+                    <td className={`${styles.ruleCell} ${styles.ruleCellDraw}`} colSpan={3}>
+                      2,3,4,5,6,7
+                    </td>
+                  </tr>
+                  <tr>
+                    <th className={styles.ruleHeaderCell}>5</th>
+                    <td className={`${styles.ruleCell} ${styles.ruleCellDraw}`} colSpan={3}>
+                      4,5,6,7
+                    </td>
+                  </tr>
+                  <tr>
+                    <th className={styles.ruleHeaderCell}>6</th>
+                    <td className={`${styles.ruleCell} ${styles.ruleCellDraw}`} colSpan={3}>
+                      6,7
+                    </td>
+                    <td className={`${styles.ruleCell} ${styles.ruleCellTie}`}>引き分け</td>
+                    <td className={`${styles.ruleCell} ${styles.ruleCellWin}`}>プレイヤーの勝ち</td>
+                  </tr>
+                  <tr>
+                    <th className={styles.ruleHeaderCell}>7</th>
+                    <td className={`${styles.ruleCell} ${styles.ruleCellDraw}`} colSpan={6}>
+                      プレイヤーのみ3枚目のカードを引く
+                    </td>
+                    <td className={`${styles.ruleCell} ${styles.ruleCellLose}`}>バンカーの勝ち</td>
+                    <td className={`${styles.ruleCell} ${styles.ruleCellTie}`}>引き分け</td>
+                  </tr>
+                  <tr>
+                    <th className={styles.ruleHeaderCell}>8</th>
+                    <td className={`${styles.ruleCell} ${styles.ruleCellLose}`} colSpan={8} rowSpan={2}>
+                      バンカーの勝ち
+                    </td>
+                    <td className={`${styles.ruleCell} ${styles.ruleCellTie}`}>引き分け</td>
+                    <td className={`${styles.ruleCell} ${styles.ruleCellWin}`}>プレイヤーの勝ち</td>
+                  </tr>
+                  <tr>
+                    <th className={styles.ruleHeaderCell}>9</th>
+                    <td className={`${styles.ruleCell} ${styles.ruleCellLose}`}>バンカーの勝ち</td>
+                    <td className={`${styles.ruleCell} ${styles.ruleCellTie}`}>引き分け</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+        )}
+        <button type="button" className={styles.button} onClick={handleNextHand}>
+          次のハンドへ
+        </button>
+      </div>
       {dealPhase === 'betting' && (
         <section>
           <h2>ベット受付中</h2>
