@@ -32,6 +32,9 @@ const BET_TYPE_LABEL: Record<Bet['type'], string> = {
   bankerPair: 'Banker Pair',
 }
 
+// 実際のバカラテーブルのレイアウトに合わせた並び順(外側にPairボックス、中央にメインベット)。
+const BET_SPOT_ORDER: Bet['type'][] = ['playerPair', 'player', 'tie', 'banker', 'bankerPair']
+
 const OUTCOME_LABEL: Record<Outcome, string> = {
   player: 'Player win',
   banker: 'Banker win',
@@ -39,7 +42,7 @@ const OUTCOME_LABEL: Record<Outcome, string> = {
 }
 
 type DrawStandAnswer = 'draw' | 'stand'
-type DealPhase = 'betting' | 'dealing' | 'answering'
+type DealPhase = 'betting' | 'answering'
 type AnswerStep = 'player' | 'banker' | 'outcome' | 'payout' | 'done'
 const DEAL_PHASE_DELAY_MS = 2000
 
@@ -74,14 +77,13 @@ function initialDealSeqIndex(handType: 'player' | 'banker', cardIndex: number): 
   return null
 }
 
-function PlayingCard({ card, faceUp, dealAnimate }: { card: Card; faceUp: boolean; dealAnimate?: boolean }) {
+function PlayingCard({ card, faceUp }: { card: Card; faceUp: boolean }) {
   const innerClassNames = [styles.flipCardInner, faceUp ? styles.isFlipped : '']
     .filter(Boolean)
     .join(' ')
   const frontClassNames = [styles.flipCardFront, isRedSuit(card.suit) ? styles.cardRed : styles.cardBlack].join(' ')
-  const outerClassNames = [styles.flipCard, dealAnimate ? styles.dealAnimation : ''].filter(Boolean).join(' ')
   return (
-    <span className={outerClassNames}>
+    <span className={styles.flipCard}>
       <span className={innerClassNames}>
         <span className={styles.flipCardBack} aria-hidden="true" />
         <span className={frontClassNames}>
@@ -93,6 +95,7 @@ function PlayingCard({ card, faceUp, dealAnimate }: { card: Card; faceUp: boolea
   )
 }
 
+// カード配布中画面のPlayer/Bankerボックス上の番号枠(1・2・3)へ、中央から飛んで着地する演出付きで配置する。
 function HandCards({
   cards,
   handType,
@@ -105,16 +108,25 @@ function HandCards({
   revealStep: number
 }) {
   return (
-    <span className={styles.cardRow}>
+    <>
       {cards.map((card, index) => {
         const seqIndex = initialDealSeqIndex(handType, index)
+        const slotClass = styles[`dealCard_${handType}${index + 1}`]
         if (seqIndex === null) {
-          return <PlayingCard key={index} card={card} faceUp dealAnimate />
+          return (
+            <span key={index} className={`${styles.dealCard} ${slotClass}`}>
+              <PlayingCard card={card} faceUp />
+            </span>
+          )
         }
         if (dealStep <= seqIndex) return null
-        return <PlayingCard key={index} card={card} faceUp={revealStep > seqIndex} dealAnimate />
+        return (
+          <span key={index} className={`${styles.dealCard} ${slotClass}`}>
+            <PlayingCard card={card} faceUp={revealStep > seqIndex} />
+          </span>
+        )
       })}
-    </span>
+    </>
   )
 }
 
@@ -185,8 +197,7 @@ function App() {
 
   useEffect(() => {
     if (dealPhase === 'answering') return
-    const nextPhase: DealPhase = dealPhase === 'betting' ? 'dealing' : 'answering'
-    const timer = setTimeout(() => setDealPhase(nextPhase), DEAL_PHASE_DELAY_MS)
+    const timer = setTimeout(() => setDealPhase('answering'), DEAL_PHASE_DELAY_MS)
     return () => clearTimeout(timer)
   }, [dealPhase])
 
@@ -453,10 +464,69 @@ function App() {
       </div>
       {dealPhase === 'betting' && (
         <section>
-          <h2>ベット受付中</h2>
+          <h2 className={styles.sceneHeading}>ベット受付中</h2>
           <p>
             今回のベット: {BET_TYPE_LABEL[bet.type]} ${bet.amount}
           </p>
+          <div className={styles.bettingLayout}>
+            <svg
+              className={styles.bettingArt}
+              viewBox="0 0 300 460"
+              preserveAspectRatio="xMidYMid meet"
+              aria-hidden="true"
+            >
+              <line x1="10" y1="30" x2="70" y2="30" className={styles.artLine} />
+              <line x1="230" y1="30" x2="290" y2="30" className={styles.artLine} />
+              <line x1="106" y1="30" x2="134" y2="30" className={styles.artLine} />
+              <line x1="166" y1="30" x2="194" y2="30" className={styles.artLine} />
+              <rect
+                x="86"
+                y="26"
+                width="8"
+                height="8"
+                transform="rotate(45 90 30)"
+                className={styles.artLine}
+                fill="none"
+              />
+              <rect
+                x="206"
+                y="26"
+                width="8"
+                height="8"
+                transform="rotate(45 210 30)"
+                className={styles.artLine}
+                fill="none"
+              />
+              <circle cx="150" cy="30" r="16" className={styles.artLine} fill="none" />
+              <circle cx="150" cy="30" r="8" className={styles.artLine} fill="none" />
+              <line x1="150" y1="6" x2="150" y2="16" className={styles.artLine} />
+              <line x1="150" y1="44" x2="150" y2="54" className={styles.artLine} />
+              <rect x="55" y="70" width="95" height="55" className={styles.artLine} fill="none" />
+              <rect x="150" y="70" width="95" height="55" className={styles.artLine} fill="none" />
+              <path
+                d="M55,125 L55,245 C55,315 90,365 150,395 C210,365 245,315 245,245 L245,125 Z"
+                className={styles.artLine}
+                fill="none"
+              />
+              <path d="M55,235 Q150,265 245,235" className={styles.artLine} fill="none" />
+              <circle cx="150" cy="250" r="30" className={styles.artLine} fill="#0f4d30" />
+              <circle cx="150" cy="395" r="18" className={styles.artLine} fill="#0f4d30" />
+            </svg>
+            {BET_SPOT_ORDER.map((type) => (
+              <div
+                key={type}
+                className={`${styles.betLabel} ${styles[`betLabel_${type}`]} ${
+                  type === bet.type ? styles.betLabelActive : ''
+                }`}
+              >
+                <span>{BET_TYPE_LABEL[type]}</span>
+                {type === bet.type && <span className={styles.betChip} aria-hidden="true" />}
+              </div>
+            ))}
+            <div className={styles.seatNumber} aria-hidden="true">
+              1
+            </div>
+          </div>
         </section>
       )}
       <section className={`${styles.panel} ${styles.scoreFixed}`}>
@@ -492,40 +562,65 @@ function App() {
           </>
         )}
       </section>
-      {dealPhase === 'dealing' && (
-        <section>
-          <h2>カード配布中</h2>
-          <p>
-            今回のベット: {BET_TYPE_LABEL[bet.type]} ${bet.amount}
-          </p>
-        </section>
-      )}
       {dealPhase === 'answering' && (
         <>
       <p>
         今回のベット: {BET_TYPE_LABEL[bet.type]} ${bet.amount}
       </p>
-      <div className={styles.table}>
-        <section
-          className={`${styles.hand} ${answerStep === 'player' && revealStep >= 4 ? styles.activeHand : ''}`}
+      {revealStep < 4 && <h2 className={styles.sceneHeading}>カード配布中</h2>}
+      <div className={styles.dealingLayout}>
+        <svg
+          className={styles.dealingArt}
+          viewBox="0 0 400 210"
+          preserveAspectRatio="xMidYMid meet"
+          aria-hidden="true"
         >
-          <h2>Player</h2>
-          <HandCards
-            cards={playerAnswer === null ? playerInitialCards : hand.player}
-            handType="player"
-            dealStep={dealStep}
-            revealStep={revealStep}
-          />
-        </section>
-        <section className={`${styles.hand} ${answerStep === 'banker' ? styles.activeHand : ''}`}>
-          <h2>Banker</h2>
-          <HandCards
-            cards={bankerAnswer === null ? bankerInitialCards : hand.banker}
-            handType="banker"
-            dealStep={dealStep}
-            revealStep={revealStep}
-          />
-        </section>
+          <rect x="15" y="15" width="180" height="180" rx="18" className={styles.artLine} fill="none" />
+          <rect x="22" y="22" width="166" height="166" rx="14" className={styles.playerBox} />
+          <rect x="205" y="15" width="180" height="180" rx="18" className={styles.artLine} fill="none" />
+          <rect x="212" y="22" width="166" height="166" rx="14" className={styles.bankerBox} />
+          <line x1="198" y1="15" x2="198" y2="195" className={styles.artLine} />
+          <line x1="202" y1="15" x2="202" y2="195" className={styles.artLine} />
+          <circle cx="200" cy="105" r="16" className={styles.artLine} fill="#0f4d30" />
+          <rect x="36" y="60" width="52" height="52" rx="8" className={styles.artLine} fill="none" />
+          <rect x="122" y="60" width="52" height="52" rx="8" className={styles.artLine} fill="none" />
+          <rect x="79" y="136" width="52" height="50" rx="8" className={styles.artLine} fill="none" />
+          <rect x="226" y="60" width="52" height="52" rx="8" className={styles.artLine} fill="none" />
+          <rect x="312" y="60" width="52" height="52" rx="8" className={styles.artLine} fill="none" />
+          <rect x="269" y="136" width="52" height="50" rx="8" className={styles.artLine} fill="none" />
+        </svg>
+        <span
+          className={`${styles.dealBoxGlow} ${styles.dealBoxGlow_player} ${
+            answerStep === 'player' && revealStep >= 4 ? styles.dealBoxGlowActive : ''
+          }`}
+          aria-hidden="true"
+        />
+        <span
+          className={`${styles.dealBoxGlow} ${styles.dealBoxGlow_banker} ${
+            answerStep === 'banker' ? styles.dealBoxGlowActive : ''
+          }`}
+          aria-hidden="true"
+        />
+        <span className={`${styles.dealTitle} ${styles.dealTitle_player}`}>Player</span>
+        <span className={`${styles.dealTitle} ${styles.dealTitle_banker}`}>Banker</span>
+        <span className={`${styles.dealSlotNum} ${styles.dealSlotNum_player1}`}>1</span>
+        <span className={`${styles.dealSlotNum} ${styles.dealSlotNum_player2}`}>2</span>
+        <span className={`${styles.dealSlotNum} ${styles.dealSlotNum_player3}`}>3</span>
+        <span className={`${styles.dealSlotNum} ${styles.dealSlotNum_banker1}`}>1</span>
+        <span className={`${styles.dealSlotNum} ${styles.dealSlotNum_banker2}`}>2</span>
+        <span className={`${styles.dealSlotNum} ${styles.dealSlotNum_banker3}`}>3</span>
+        <HandCards
+          cards={playerAnswer === null ? playerInitialCards : hand.player}
+          handType="player"
+          dealStep={dealStep}
+          revealStep={revealStep}
+        />
+        <HandCards
+          cards={bankerAnswer === null ? bankerInitialCards : hand.banker}
+          handType="banker"
+          dealStep={dealStep}
+          revealStep={revealStep}
+        />
       </div>
       {answerStep === 'player' && revealStep >= 4 && (
         <div className={styles.answerPrompt}>
