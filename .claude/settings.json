@@ -7,6 +7,21 @@
           {
             "type": "command",
             "command": "jq -r '.tool_input.file_path // .tool_response.filePath' | { read -r f; mkdir -p \"${CLAUDE_PROJECT_DIR:-.}/.claude\"; printf '%s\\t%s\\n' \"$(date '+%Y-%m-%d %H:%M:%S')\" \"$f\" >> \"${CLAUDE_PROJECT_DIR:-.}/.claude/edit-log.txt\"; } 2>/dev/null || true"
+          },
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PROJECT_DIR:-.}/.claude/hooks/clear-security-reviewed.sh\""
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PROJECT_DIR:-.}/.claude/hooks/require-security-review.sh\""
           }
         ]
       }
