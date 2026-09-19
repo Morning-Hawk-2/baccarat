@@ -194,12 +194,15 @@ function App() {
   const [answerStep, setAnswerStep] = useState<AnswerStep>('player')
   const [dealStep, setDealStep] = useState(0)
   const [revealStep, setRevealStep] = useState(0)
+  // dealPhaseの値が変わらない場合(例: betting中に「次のハンドへ」を押す)でも
+  // このカウンタを進めることで、下のタイマーを必ず2秒リセットさせる。
+  const [roundId, setRoundId] = useState(0)
 
   useEffect(() => {
-    if (dealPhase === 'answering') return
+    if (screen !== 'main' || dealPhase === 'answering') return
     const timer = setTimeout(() => setDealPhase('answering'), DEAL_PHASE_DELAY_MS)
     return () => clearTimeout(timer)
-  }, [dealPhase])
+  }, [screen, dealPhase, roundId])
 
   useEffect(() => {
     if (dealPhase !== 'answering' || dealStep >= 4) return
@@ -300,6 +303,7 @@ function App() {
     setAnswerStep('player')
     setDealStep(0)
     setRevealStep(0)
+    setRoundId((id) => id + 1)
   }
 
   const handleResetScore = () => {
