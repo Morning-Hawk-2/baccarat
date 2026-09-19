@@ -1,5 +1,7 @@
 # baccarat
 
+公開URL: https://baccarat.asatakasakuda.workers.dev
+
 バカラディーラー研修シミュレーター
 
 ## 何を作るか
