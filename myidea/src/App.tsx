@@ -308,6 +308,9 @@ function App() {
         <p>
           全カードが公開されたら、Player win / Banker win / Tieの3択で勝敗を答えます。
         </p>
+        <p>
+          勝敗が確定したら、配当額を4択の中から選んで答えます。
+        </p>
         <button type="button" className={styles.button} onClick={() => setScreen('main')}>
           はじめる
         </button>
