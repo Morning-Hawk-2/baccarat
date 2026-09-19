@@ -305,6 +305,9 @@ function App() {
         <p>
           Player・Bankerそれぞれの手札が表示されたら、第三カードルールに沿ってDraw(引く)かStand(止める)かを答えます。
         </p>
+        <p>
+          全カードが公開されたら、Player win / Banker win / Tieの3択で勝敗を答えます。
+        </p>
         <button type="button" className={styles.button} onClick={() => setScreen('main')}>
           はじめる
         </button>
