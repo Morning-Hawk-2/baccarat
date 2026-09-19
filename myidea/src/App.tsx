@@ -302,6 +302,9 @@ function App() {
     return (
       <main>
         <h1>バカラディーラー判断練習</h1>
+        <p>
+          Player・Bankerそれぞれの手札が表示されたら、第三カードルールに沿ってDraw(引く)かStand(止める)かを答えます。
+        </p>
         <button type="button" className={styles.button} onClick={() => setScreen('main')}>
           はじめる
         </button>
